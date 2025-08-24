@@ -1,0 +1,89 @@
+.about-sections {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: start;
+    align-items: stretch;
+    gap: 150px;
+}
+
+.about-left {
+    flex: 1;
+    line-height: 35px;
+    font-size: 20px;
+    text-align: justify;
+}
+
+.enhance {
+    font-weight: bold;
+    background: linear-gradient(270deg, var(--color-primary), var(--color-accent), var(--color-primary));
+    background-size: 400% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 5s ease infinite;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0 50%;
+    }
+}
+
+.about-right {
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 150px));
+    gap: 40px 20px;
+}
+
+.skill {
+    width: 100%;
+    max-width: 100px;
+    height: auto;
+    border-radius: 8px;
+    transition: .3s;
+}
+
+.about-card {
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 25px;
+    width: 90%;
+    text-align: left;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    color: var(--color-text);
+    transition: box-shadow 0.3s;
+    cursor: pointer;
+    margin-bottom: 3rem;
+}
+
+.about-card h2 {
+    margin-bottom: 1.5rem;
+    font-size: 24px;
+    color: var(--color-primary);
+}
+
+.about-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.info-pair {
+    min-width: 30%;
+    font-size: 20px;
+}
+
+.info-pair strong {
+    color: var(--color-accent);
+}

@@ -1,0 +1,67 @@
+.hero img {
+    width: 300px;
+    height: 300px;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid var(--color-text);
+
+}
+
+.hero h1 {
+    text-align: center;
+    font-size: 70px;
+    font-weight: 600;
+}
+
+.hero h1 span {
+    background: linear-gradient(267deg, var(--color-primary) 10%, var(--color-accent) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+    margin: 0 20px;
+    text-align: center;
+    font-size: 22px;
+    line-height: 40px;
+}
+
+.hero-action {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 50px;
+}
+
+.hero-contact {
+    width: 130px;
+    padding: 15px 35px;
+    border-radius: 50px;
+    cursor: pointer;
+    text-align: center;
+    background: linear-gradient(267deg, var(--color-primary), var(--color-accent));
+    border: 2px solid transparent;
+    transition: border-color ease-in-out .2s;
+}
+
+.hero-contact:hover {
+    border-color: var(--color-text);
+}
+
+.hero-resume {
+    width: 130px;
+    padding: 15px 35px;
+    border-radius: 50px;
+    cursor: pointer;
+    text-align: center;
+    border: 2px solid var(--color-text);
+    transition: border-color ease-in-out .2s;
+}
+
+.hero-resume:hover {
+    border-color: var(--color-accent);
+}

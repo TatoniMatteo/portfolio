@@ -1,0 +1,79 @@
+/* theme.css */
+
+:root {
+    /* Palette base */
+    --color-blue-50: #f0f6ff;
+    --color-blue-100: #d6e4ff;
+    --color-blue-200: #adc8ff;
+    --color-blue-300: #84a9ff;
+    --color-blue-400: #6690ff;
+    --color-blue-500: #3366ff;
+    --color-blue-600: #254edb;
+    --color-blue-700: #1939b7;
+    --color-blue-800: #102693;
+    --color-blue-900: #091a7a;
+
+    --color-gold-50: #fff8e1;
+    --color-gold-100: #ffecb3;
+    --color-gold-200: #ffe082;
+    --color-gold-300: #ffd54f;
+    --color-gold-400: #ffca28;
+    --color-gold-500: #ffc107;
+    --color-gold-600: #ffb300;
+    --color-gold-700: #ffa000;
+    --color-gold-800: #ff8f00;
+    --color-gold-900: #ff6f00;
+
+    /* Modalità chiara */
+    --color-bg: #ffffff;
+    --color-text: #0f172a;
+    --color-primary: var(--color-blue-600);
+    --color-primary-hover: var(--color-blue-700);
+    --color-accent: var(--color-gold-600);
+    --color-accent-hover: var(--color-gold-700);
+    --color-border: #e2e8f0;
+    --color-card: #f8fafc;
+}
+
+[data-theme="dark"] {
+    /* Modalità scura */
+    --color-bg: #0f172a;
+    --color-text: #f8fafc;
+    --color-primary: var(--color-blue-400);
+    --color-primary-hover: var(--color-blue-300);
+    --color-accent: var(--color-gold-400);
+    --color-accent-hover: var(--color-gold-300);
+    --color-border: #1e293b;
+    --color-card: #1a202c;
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    height: 100vh;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: 'outfit', sans-serif;
+}
+
+.section {
+    margin: 100px auto;
+    max-width: 1200px;
+    min-height: 100vh;
+    max-height: 100vh;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 35px;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 30px;
+    margin-bottom: 50px;
+    text-transform: uppercase;
+}
