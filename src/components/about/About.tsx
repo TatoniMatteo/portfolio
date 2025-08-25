@@ -1,13 +1,13 @@
 import './About.css';
 import {motion} from 'framer-motion';
-import Java from '../../assets/java.svg?react';
-import Spring from '../../assets/spring.svg?react';
-import PGSQL from '../../assets/pgsql.svg?react';
-import HTML from '../../assets/HTML.svg?react';
-import CSS from '../../assets/CSS.svg?react';
-import Linux from '../../assets/linux.svg?react';
-import Syncope from '../../assets/syncope.jpg';
-import CAS from '../../assets/cas.svg?react';
+import Java from '../../assets/images/java.svg?react';
+import Spring from '../../assets/images/spring.svg?react';
+import PGSQL from '../../assets/images/pgsql.svg?react';
+import HTML from '../../assets/images/HTML.svg?react';
+import CSS from '../../assets/images/CSS.svg?react';
+import Linux from '../../assets/images/linux.svg?react';
+import Syncope from '../../assets/images/syncope.jpg';
+import CAS from '../../assets/images/cas.svg?react';
 import * as React from "react";
 
 interface Skill {
@@ -37,18 +37,17 @@ const About = () => {
         return Math.abs(ageDate.getUTCFullYear() - 1970);
     };
 
-    const info = {
-        Nome: 'Matteo Tatoni',
-        Età: calculateAge(birthDate),
-        Residenza: 'Spoltore, Pescara - Italy',
-        Sesso: 'M',
-        Professione: 'Software Developer'
-    };
+    const info = [
+        {key: 'age', label: 'Age', value: calculateAge(birthDate), order: 1},
+        {key: 'residence', label: 'Residence', value: 'Spoltore, Pescara - Italy', order: 2},
+        {key: 'gender', label: 'Gender', value: 'M', order: 3},
+        {key: 'profession', label: 'Profession', value: 'Software Developer', order: 4}
+    ];
 
-    const entries = Object.entries(info);
+    const sortedInfo = info.sort((a, b) => a.order - b.order);
 
     return (
-        <div className="section">
+        <div className="section" id="about-me">
             <div className="section-title">
                 <h1>About Me</h1>
             </div>
@@ -68,11 +67,11 @@ const About = () => {
                         whileHover={{scale: 1.05}}
                         transition={{duration: 0.5}}
                     >
-                        <h2>{info.Nome}</h2>
+                        <h2>Matteo Tatoni</h2>
                         <div className="about-info">
-                            {entries.filter(([key]) => key !== 'Nome').map(([key, value], index) => (
-                                <div className="info-pair" key={index}>
-                                    <span><strong>{key}</strong> <br/>{value}</span>
+                            {sortedInfo.map(({key, label, value}) => (
+                                <div className="info-pair" key={key}>
+                                    <span><strong>{label}</strong> <br/>{value}</span>
                                 </div>
                             ))}
                         </div>

@@ -32,8 +32,8 @@
     aspect-ratio: 1/1;
 }
 
-.content-card:hover {
-    background: var('--color-accent')
+.contact-card:hover {
+    background: var(--color-accent);
 }
 
 .contact-card span {

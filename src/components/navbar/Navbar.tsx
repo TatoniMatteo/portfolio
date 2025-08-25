@@ -1,4 +1,4 @@
-import Logo from '../../assets/logo.svg?react';
+import Logo from '../../assets/images/logo.svg?react';
 import './Navbar.css'
 import {motion} from 'framer-motion';
 
@@ -20,6 +20,8 @@ const Navbar = () => {
             <ul className="nav-menu">
                 {menuItems.map((item, index) => {
                     const isContact = index === menuItems.length - 1;
+                    // crea l'id della sezione convertendo in minuscolo e sostituendo spazi con "-"
+                    const href = `#${item.toLowerCase().replace(/\s+/g, '-')}`;
                     return (
                         <motion.li
                             key={index}
@@ -27,10 +29,10 @@ const Navbar = () => {
                             initial={{opacity: 0, y: -10}}
                             whileInView={{opacity: 1, y: 0}}
                             viewport={{once: false, amount: 0.5}}
-                            transition={{delay: 0.1 * index, duration: 0.5, ease: "easeOut"}}
+                            transition={{duration: 0.3, ease: "easeOut"}}
                             whileHover={isContact ? {scale: 1.05} : {}}
                         >
-                            {item}
+                            <a href={href}>{item}</a>
                         </motion.li>
                     )
                 })}

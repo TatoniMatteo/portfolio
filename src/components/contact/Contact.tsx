@@ -1,4 +1,5 @@
 import {motion} from 'framer-motion';
+import resume from '../../assets/documents/resume.pdf'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faEnvelope,} from '@fortawesome/free-solid-svg-icons';
 import {
@@ -42,7 +43,7 @@ const contacts: ContactItem[] = [
 
 const Contact = () => {
     return (
-        <div className="section">
+        <div className="section" id="contact-me">
             <div className="section-title">
                 <h1>Contact Me</h1>
             </div>
@@ -77,7 +78,7 @@ const Contact = () => {
                     transition={{duration: 0.8}}
                 >
                     <iframe
-                        src="/resume.pdf"
+                        src={resume}
                         title="CV Preview"
                         width="100%"
                         height="100%"

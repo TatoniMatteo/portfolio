@@ -1,4 +1,6 @@
 import './Project.css';
+import WaterHealth  from '../../assets/images/water-project.png';
+import Portfolio  from '../../assets/images/portfolio.png';
 import {useState} from 'react';
 import {motion, AnimatePresence} from 'framer-motion';
 
@@ -13,13 +15,13 @@ const projects: ProjectItem[] = [
     {
         title: 'Water Health',
         description: 'Bachelor\'s thesis project: a system for interacting with a sensor for real-time water quality monitoring. Client-side project (Android app) and server-side project (Spring Boot).',
-        image: '/waterProject.png',
+        image: WaterHealth,
         link: 'https://github.com/TatoniMatteo/Water-Project'
     },
     {
         title: 'Portfolio Website',
         description: 'A modern website created as a personal portfolio and showcase. It presents my projects, skills, and experience in a clean, organized layout. The site allows visitors to explore my work, understand my capabilities, and get a clear picture of what I can do. It focuses on functionality, clarity, and ease of navigation while reflecting my approach to software development and problem-solving.',
-        image: '/portfolio.png',
+        image: Portfolio,
         link: 'https://github.com/TatoniMatteo/portfolio'
     },
 ];
@@ -28,7 +30,7 @@ const Project = () => {
     const [selected, setSelected] = useState(0);
 
     return (
-        <div className="section">
+        <div className="section" id="my-projects">
             <div className="section-title">
                 <h1>My Projects</h1>
             </div>

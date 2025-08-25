@@ -14,25 +14,18 @@
     font-size: 20px;
 }
 
-.nav-item{
+.nav-item {
     cursor: pointer;
 }
 
-#contacts {
-    background: linear-gradient(267deg, var(--color-primary), var(--color-accent));
-    padding: 15px 35px;
-    border-radius: 50px;
-    font-size: 22px;
-    transition: .2s;
+.nav-item:not(.contact-item) a,
+.nav-item:not(.contact-item) a:visited,
+.nav-item:not(.contact-item) a:active {
+    color: var(--color-text);
+    text-decoration: none;
 }
 
-#contacts:hover {
-    transform: scale(1.05);
-}
-
-.logo {
-    height: 50px;
-    width: auto;
+.nav-item:not(.contact-item) a:hover {
     color: var(--color-accent);
 }
 
@@ -42,10 +35,19 @@
     border-radius: 50px;
     font-size: 22px;
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .contact-item:hover {
-    /* Scaling gestito da Framer Motion, quindi possiamo lasciare solo colore se vuoi */
     background: linear-gradient(267deg, var(--color-primary-hover), var(--color-accent-hover));
+}
+
+.contact-item a {
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.logo {
+    height: 50px;
+    width: auto;
 }

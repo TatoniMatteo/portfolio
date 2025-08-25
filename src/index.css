@@ -53,6 +53,10 @@
     padding: 0;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     height: 100vh;
     background: var(--color-bg);
@@ -76,4 +80,19 @@ body {
     font-size: 30px;
     margin-bottom: 50px;
     text-transform: uppercase;
+}
+
+.primary {
+    fill: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.accent {
+    fill: var(--color-accent);
+    color: var(--color-accent);
+}
+
+a {
+    color: var(--color-text);
+    text-decoration: none;
 }

@@ -3,7 +3,7 @@ import Timeline from "../timeline/Timeline.tsx";
 
 const Career = () => {
     return (
-        <div className="section">
+        <div className="section" id="career">
             <div className="section-title">
                 <h1>Career</h1>
             </div>
