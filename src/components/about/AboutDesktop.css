@@ -1,0 +1,71 @@
+/* === AboutDesktop.css === */
+.about-desktop {
+    .about-sections {
+        display: flex;
+        flex-direction: row;
+        gap: 150px;
+        align-items: flex-start;
+        justify-content: start;
+    }
+
+    .about-left {
+        flex: 1;
+        line-height: 35px;
+        font-size: 20px;
+        text-align: justify;
+    }
+
+    .about-card {
+        background: var(--about-card-bg);
+        border: 1px solid var(--about-card-border);
+        border-radius: 12px;
+        padding: 25px;
+        width: 90%;
+        margin-bottom: 3rem;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        color: var(--about-card-text);
+        transition: box-shadow 0.3s;
+        cursor: pointer;
+    }
+
+    .about-card h2 {
+        margin-bottom: 1.5rem;
+        font-size: 24px;
+        color: var(--about-card-title);
+    }
+
+    .about-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .info-pair {
+        min-width: 30%;
+        font-size: 20px;
+    }
+
+    .info-pair strong {
+        color: var(--color-accent);
+    }
+
+    .about-right {
+        flex: 1;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 50px 20px;
+        justify-content: space-between;
+        align-items: center;
+        text-align: center;
+    }
+
+    .skill {
+        width: 100%;
+        max-width: var(--skill-max-width);
+        height: auto;
+        border-radius: 8px;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+}

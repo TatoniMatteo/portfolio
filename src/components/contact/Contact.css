@@ -43,10 +43,34 @@
 
 .cv-preview {
     width: 100%;
-    min-height: 100%;
+    height: 80vh;
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     background: var(--color-card);
     padding: 1rem;
+}
+
+/* ================== MOBILE RESPONSIVE ================== */
+@media (max-width: 768px) {
+    .section-contacts {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .contact-grid {
+        min-width: 100%;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+    }
+
+    .contact-card {
+        padding: 1rem;
+        font-size: 14px;
+    }
+
+    .cv-preview {
+        height: 60vh;
+        padding: 0.5rem;
+    }
 }

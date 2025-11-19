@@ -1,0 +1,52 @@
+/* === HeroDesktop.css === */
+
+.hero-desktop {
+    img {
+        width: var(--hero-img-size-desktop);
+        height: var(--hero-img-size-desktop);
+    }
+
+    h1 {
+        font-size: 70px;
+    }
+
+    p {
+        font-size: 22px;
+        line-height: 40px;
+    }
+
+    .hero-action {
+        display: flex;
+        flex-direction: row;
+        gap: 25px;
+        font-size: 22px;
+        font-weight: 500;
+    }
+
+    .hero-contact,
+    .hero-resume {
+        width: 130px;
+        padding: 15px 35px;
+        border-radius: 50px;
+        cursor: pointer;
+        text-align: center;
+        transition: border-color ease-in-out 0.2s;
+    }
+
+    .hero-contact {
+        background: var(--hero-accent-gradient);
+        border: 2px solid transparent;
+    }
+
+    .hero-contact:hover {
+        border-color: var(--color-text);
+    }
+
+    .hero-resume {
+        border: 2px solid var(--color-text);
+    }
+
+    .hero-resume:hover {
+        border-color: var(--color-accent);
+    }
+}

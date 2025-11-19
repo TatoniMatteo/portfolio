@@ -1,67 +1,52 @@
-.hero img {
-    width: 300px;
-    height: 300px;
-    aspect-ratio: 1/1;
+/* === Hero.css === */
+
+/* Variabili comuni */
+:root {
+    --hero-img-size-desktop: 300px;
+    --hero-img-size-mobile: 200px;
+    --hero-font-color: var(--color-text);
+    --hero-accent-gradient: linear-gradient(267deg, var(--color-primary) 10%, var(--color-accent) 100%);
+    --hero-line-height: 1;
+}
+
+/* Wrapper base per entrambe le versioni */
+.section.hero-desktop,
+.section.hero-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    padding: 0 1rem;
+    text-align: center;
+}
+
+/* Stili logo/immagine */
+.hero-desktop img,
+.hero-mobile img {
     border-radius: 50%;
     object-fit: cover;
-    border: 5px solid var(--color-text);
-
+    border: 5px solid var(--hero-font-color);
 }
 
-.hero h1 {
-    text-align: center;
-    font-size: 70px;
+/* Titolo principale */
+.hero-desktop h1,
+.hero-mobile h1 {
+    margin: 1.5rem 0 1rem 0;
     font-weight: 600;
+    line-height: var(--hero-line-height);
 }
 
-.hero h1 span {
-    background: linear-gradient(267deg, var(--color-primary) 10%, var(--color-accent) 100%);
+.hero-desktop h1 span,
+.hero-mobile h1 span {
+    background: var(--hero-accent-gradient);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
-.hero p {
-    margin: 0 20px;
-    text-align: center;
-    font-size: 22px;
-    line-height: 40px;
-}
-
-.hero-action {
-    display: flex;
-    align-items: center;
-    gap: 25px;
-    font-size: 22px;
-    font-weight: 500;
-    margin-bottom: 50px;
-}
-
-.hero-contact {
-    width: 130px;
-    padding: 15px 35px;
-    border-radius: 50px;
-    cursor: pointer;
-    text-align: center;
-    background: linear-gradient(267deg, var(--color-primary), var(--color-accent));
-    border: 2px solid transparent;
-    transition: border-color ease-in-out .2s;
-}
-
-.hero-contact:hover {
-    border-color: var(--color-text);
-}
-
-.hero-resume {
-    width: 130px;
-    padding: 15px 35px;
-    border-radius: 50px;
-    cursor: pointer;
-    text-align: center;
-    border: 2px solid var(--color-text);
-    transition: border-color ease-in-out .2s;
-}
-
-.hero-resume:hover {
-    border-color: var(--color-accent);
+/* Paragrafo descrizione */
+.hero-desktop p,
+.hero-mobile p {
+    margin: 0 1rem 1.5rem 1rem;
+    color: var(--hero-font-color);
 }

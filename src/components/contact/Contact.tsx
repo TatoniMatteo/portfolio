@@ -15,6 +15,7 @@ import {
 } from '@fortawesome/free-brands-svg-icons';
 import './Contact.css';
 import type {IconDefinition} from "@fortawesome/fontawesome-svg-core";
+import PDFViewer from "../pdf-viewer/PDFViewer.tsx";
 
 interface ContactItem {
     label: string;
@@ -77,12 +78,7 @@ const Contact = () => {
                     viewport={{once: false, amount: 0.3}}
                     transition={{duration: 0.8}}
                 >
-                    <iframe
-                        src={resume}
-                        title="CV Preview"
-                        width="100%"
-                        height="100%"
-                    />
+                    <PDFViewer src={resume}/>
                 </motion.div>
             </div>
         </div>

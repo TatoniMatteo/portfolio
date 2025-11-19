@@ -1,0 +1,68 @@
+/* === AboutMobile.css === */
+.about-mobile {
+    .about-sections-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .about-left-mobile {
+        width: 100%;
+        line-height: 28px;
+        font-size: 16px;
+        text-align: justify;
+    }
+
+    .about-card-mobile {
+        background: var(--about-card-bg);
+        border: 1px solid var(--about-card-border);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        color: var(--about-card-text);
+        cursor: pointer;
+    }
+
+    .about-card-mobile h2 {
+        margin-bottom: 1rem;
+        font-size: 20px;
+        color: var(--about-card-title);
+    }
+
+    .about-info-mobile {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .info-pair-mobile {
+        font-size: 16px;
+        min-width: 30%;
+    }
+
+    .info-pair-mobile strong {
+        color: var(--color-accent);
+    }
+
+    .about-right-mobile {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 20px 15px;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    .skill-mobile {
+        width: 100%;
+        max-width: 80px;
+        height: auto;
+        border-radius: 6px;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+}

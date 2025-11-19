@@ -1,54 +1,36 @@
+import { useEffect, useState } from 'react';
+import HeroDesktop from './HeroDesktop';
+import HeroMobile from './HeroMobile';
+import profile_img from '../../assets/images/profile.jpeg';
+import resume from '../../assets/documents/resume.pdf';
 import './Hero.css';
-import resume from '../../assets/documents/resume.pdf'
-import profile_img from '../../assets/images/profile.png';
-import {motion} from 'framer-motion';
+
+export type HeroProps = {
+    profileImg: string;
+    resumeFile: string;
+    name: string;
+    role: string;
+    description: string;
+};
 
 const Hero = () => {
-    return (
-        <div className="section hero" id="home">
-            <motion.img
-                src={profile_img}
-                alt="profile image"
-                initial={{opacity: 0, scale: 0.8}}
-                whileInView={{opacity: 1, scale: 1}}
-                viewport={{once: false, amount: 0.5}}
-                transition={{duration: 0.8, ease: "easeOut"}}
-            />
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-            <motion.h1
-                initial={{opacity: 0, y: -30}}
-                whileInView={{opacity: 1, y: 0}}
-                viewport={{once: false, amount: 0.5}}
-                transition={{duration: 0.8, delay: 0.2}}
-            >
-                <span>I'm Matteo Tatoni</span><br/> Software Developer
-            </motion.h1>
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
-            <motion.p
-                initial={{opacity: 0, y: 20}}
-                whileInView={{opacity: 1, y: 0}}
-                viewport={{once: false, amount: 0.5}}
-                transition={{duration: 0.8, delay: 0.4}}
-            >
-                I build reliable and scalable software solutions that deliver impactful digital experiences.
-            </motion.p>
+    const props: HeroProps = {
+        profileImg: profile_img,
+        resumeFile: resume,
+        name: "Matteo Tatoni",
+        role: "Software Developer",
+        description: "I build reliable and scalable software solutions that deliver impactful digital experiences."
+    };
 
-            <motion.div
-                className="hero-action"
-                initial={{opacity: 0, y: 20}}
-                whileInView={{opacity: 1, y: 0}}
-                viewport={{once: false, amount: 0.5}}
-                transition={{duration: 0.8, delay: 0.6}}
-            >
-                <div className="hero-contact">
-                    <a href="#contact-me">Contact Me</a>
-                </div>
-                <div className="hero-resume">
-                    <a href={resume} download>My resume</a>
-                </div>
-            </motion.div>
-        </div>
-    )
-}
+    return isMobile ? <HeroMobile {...props} /> : <HeroDesktop {...props} />;
+};
 
 export default Hero;

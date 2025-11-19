@@ -1,44 +1,38 @@
+import {useEffect, useState} from 'react';
+import NavbarDesktop from './NavbarDesktop';
+import NavbarMobile from './NavbarMobile';
 import Logo from '../../assets/images/logo.svg?react';
-import './Navbar.css'
-import {motion} from 'framer-motion';
+import './Navbar.css';
+import * as React from "react";
+
+export type NavbarProps = {
+    logo: React.ReactNode;
+    menuItems: string[];
+    backgroundColor?: string;
+};
 
 const Navbar = () => {
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const menuItems = ["Home", "About Me", "Career", "My projects", "Contact Me"];
 
-    return (
-        <div className="navbar">
-            <motion.div
-                className="logo"
-                initial={{opacity: 0, y: -20}}
-                whileInView={{opacity: 1, y: 0}}
-                viewport={{once: false, amount: 0.5}}
-                transition={{duration: 0.8, ease: "easeOut"}}
-            >
-                <Logo className="logo"/>
-            </motion.div>
+    const props: NavbarProps = {
+        logo: <Logo className="logo"/>,
+        menuItems,
+        backgroundColor: 'var(--color-bg)'
+    };
 
-            <ul className="nav-menu">
-                {menuItems.map((item, index) => {
-                    const isContact = index === menuItems.length - 1;
-                    // crea l'id della sezione convertendo in minuscolo e sostituendo spazi con "-"
-                    const href = `#${item.toLowerCase().replace(/\s+/g, '-')}`;
-                    return (
-                        <motion.li
-                            key={index}
-                            className={`nav-item ${isContact ? "contact-item" : ""}`}
-                            initial={{opacity: 0, y: -10}}
-                            whileInView={{opacity: 1, y: 0}}
-                            viewport={{once: false, amount: 0.5}}
-                            transition={{duration: 0.3, ease: "easeOut"}}
-                            whileHover={isContact ? {scale: 1.05} : {}}
-                        >
-                            <a href={href}>{item}</a>
-                        </motion.li>
-                    )
-                })}
-            </ul>
-        </div>
-    )
-}
+    return isMobile ? (
+        <NavbarMobile {...props} />
+    ) : (
+        <NavbarDesktop {...props} />
+    );
+};
 
 export default Navbar;

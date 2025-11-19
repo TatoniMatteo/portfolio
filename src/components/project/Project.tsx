@@ -1,6 +1,6 @@
 import './Project.css';
-import WaterHealth  from '../../assets/images/water-project.png';
-import Portfolio  from '../../assets/images/portfolio.png';
+import WaterHealth from '../../assets/images/water-project.png';
+import Portfolio from '../../assets/images/portfolio.png';
 import {useState} from 'react';
 import {motion, AnimatePresence} from 'framer-motion';
 
@@ -14,16 +14,18 @@ interface ProjectItem {
 const projects: ProjectItem[] = [
     {
         title: 'Water Health',
-        description: 'Bachelor\'s thesis project: a system for interacting with a sensor for real-time water quality monitoring. Client-side project (Android app) and server-side project (Spring Boot).',
+        description:
+            "Bachelor's thesis project: a system for interacting with a sensor for real-time water quality monitoring. Client-side project (Android app) and server-side project (Spring Boot).",
         image: WaterHealth,
         link: 'https://github.com/TatoniMatteo/Water-Project'
     },
     {
         title: 'Portfolio Website',
-        description: 'A modern website created as a personal portfolio and showcase. It presents my projects, skills, and experience in a clean, organized layout. The site allows visitors to explore my work, understand my capabilities, and get a clear picture of what I can do. It focuses on functionality, clarity, and ease of navigation while reflecting my approach to software development and problem-solving.',
+        description:
+            'A modern website created as a personal portfolio and showcase. It presents my projects, skills, and experience in a clean, organized layout.',
         image: Portfolio,
         link: 'https://github.com/TatoniMatteo/portfolio'
-    },
+    }
 ];
 
 const Project = () => {
@@ -34,6 +36,7 @@ const Project = () => {
             <div className="section-title">
                 <h1>My Projects</h1>
             </div>
+
             <div className="project-container">
                 <div className="project-list">
                     {projects.map((p, index) => (
@@ -59,10 +62,18 @@ const Project = () => {
                         exit={{opacity: 0, x: -50}}
                         transition={{duration: 0.3}}
                     >
-                        <img src={projects[selected].image} alt={projects[selected].title}/>
+                        <img
+                            src={projects[selected].image}
+                            alt={projects[selected].title}
+                        />
                         <p>{projects[selected].description}</p>
+
                         {projects[selected].link && (
-                            <a href={projects[selected].link} target="_blank" rel="noopener noreferrer">
+                            <a
+                                href={projects[selected].link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
                                 View Project
                             </a>
                         )}
