@@ -1,5 +1,5 @@
 import {motion} from 'framer-motion';
-import resume from '../../assets/documents/resume.pdf'
+import resume from '../../assets/documents/CV-Matteo-Tatoni.pdf'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faEnvelope,} from '@fortawesome/free-solid-svg-icons';
 import {

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import HeroDesktop from './HeroDesktop';
 import HeroMobile from './HeroMobile';
 import profile_img from '../../assets/images/profile.jpeg';
-import resume from '../../assets/documents/resume.pdf';
+import resume from '../../assets/documents/CV-Matteo-Tatoni.pdf';
 import './Hero.css';
 
 export type HeroProps = {
