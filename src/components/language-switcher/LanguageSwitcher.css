@@ -1,0 +1,26 @@
+.language-switcher {
+    display: flex;
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.language-option {
+    border: none;
+    background: transparent;
+    color: var(--color-text);
+    padding: 6px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.language-option.active {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.language-option:not(.active):hover {
+    background: var(--color-card);
+}

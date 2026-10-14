@@ -75,6 +75,12 @@
         color: var(--color-accent);
     }
 
+    .nav-item-language {
+        display: flex;
+        justify-content: center;
+        margin-top: 15px;
+    }
+
     .contact-item {
         background: linear-gradient(267deg, var(--color-primary), var(--color-accent));
         padding: 12px 24px;

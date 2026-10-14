@@ -1,0 +1,43 @@
+{
+	admin off
+	auto_https off
+}
+
+:80 {
+	encode zstd gzip
+
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options SAMEORIGIN
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+
+	# CV: file del volume /cv-data (aggiornato dal container cv-updater).
+	# handle_path toglie il prefisso: /cv/cv-it.pdf -> /cv-data/cv-it.pdf
+	# no-cache = il browser rivalida (ETag) e vede subito un CV nuovo.
+	handle_path /cv/* {
+		root * /cv-data
+		header Cache-Control "no-cache"
+		file_server {
+			hide .*
+		}
+	}
+
+	# Asset con hash nel nome (Vite): cache lunghissima, niente fallback a
+	# index.html. L'header solo se il file esiste, così un 404 non resta in cache.
+	handle /assets/* {
+		root * /srv
+		@exists file
+		header @exists Cache-Control "public, max-age=31536000, immutable"
+		file_server
+	}
+
+	# Tutto il resto: sito statico, con fallback a index.html
+	handle {
+		root * /srv
+		header Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+}

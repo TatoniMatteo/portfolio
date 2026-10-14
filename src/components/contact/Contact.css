@@ -1,15 +1,12 @@
 .section-contacts {
     display: flex;
-    flex-direction: row;
     width: 100%;
-    align-items: stretch;
-    gap: 100px;
-    flex: 1;
+    justify-content: center;
 }
 
 .contact-grid {
-    min-height: 100%;
-    min-width: 45%;
+    width: 100%;
+    max-width: 800px;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 2rem;
@@ -41,25 +38,9 @@
     text-align: center;
 }
 
-.cv-preview {
-    width: 100%;
-    height: 80vh;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    background: var(--color-card);
-    padding: 1rem;
-}
-
 /* ================== MOBILE RESPONSIVE ================== */
 @media (max-width: 768px) {
-    .section-contacts {
-        flex-direction: column;
-        gap: 30px;
-    }
-
     .contact-grid {
-        min-width: 100%;
         grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         gap: 1rem;
     }
@@ -67,10 +48,5 @@
     .contact-card {
         padding: 1rem;
         font-size: 14px;
-    }
-
-    .cv-preview {
-        height: 60vh;
-        padding: 0.5rem;
     }
 }

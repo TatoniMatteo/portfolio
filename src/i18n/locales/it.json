@@ -1,0 +1,111 @@
+{
+    "nav": {
+        "home": "Home",
+        "aboutMe": "Chi Sono",
+        "career": "Carriera",
+        "resume": "Curriculum",
+        "openSource": "Open Source",
+        "myProjects": "I Miei Progetti",
+        "contactMe": "Contattami"
+    },
+    "hero": {
+        "greeting": "Sono {{name}}",
+        "role": "Software Developer",
+        "description": "Sviluppo soluzioni software affidabili e scalabili che offrono esperienze digitali di impatto.",
+        "contact": "Contattami",
+        "resume": "Il mio CV"
+    },
+    "about": {
+        "title": "Chi Sono",
+        "description": "Sono uno sviluppatore software con esperienza nell'uso di tecnologie Open Source. Lavoro principalmente con Java, Spring Boot, PostgreSQL e sistemi Linux, e integro strumenti come Apache Syncope e Apereo CAS per la gestione di identità e autenticazione. Questo mi ha aiutato a comprendere meglio architetture di sistema complesse e i processi di sviluppo.",
+        "info": {
+            "age": "Età",
+            "residence": "Residenza",
+            "residenceValue": "Spoltore, Pescara - Italia",
+            "gender": "Genere",
+            "profession": "Professione",
+            "professionValue": "Software Developer"
+        }
+    },
+    "career": {
+        "title": "Carriera",
+        "events": [
+            {
+                "year": "2014 - 2019",
+                "title": "Diploma di Maturità",
+                "subtitle": "Liceo Scientifico G. Galilei (Pescara)",
+                "description": "Diploma di Maturità Scientifica con votazione 83/100.\nStudio di matematica, fisica, chimica, biologia, latino e filosofia."
+            },
+            {
+                "year": "2020 - 2023",
+                "title": "Laurea in Informatica",
+                "subtitle": "Università degli Studi dell'Aquila",
+                "description": "Laurea triennale in Informatica con votazione 110/110.\nStudio di linguaggi di programmazione, progettazione software, algoritmi, sistemi informativi e basi di dati."
+            },
+            {
+                "year": "2023 - 2025",
+                "title": "Tirasa s.r.l.",
+                "subtitle": "Apprendistato - Software Developer",
+                "description": "Sviluppo di funzionalità custom con Java, Spring Boot, PostgreSQL e Linux.\nEsperienza maturata con Apache Syncope e Apereo CAS."
+            },
+            {
+                "year": "2025",
+                "title": "Apache Syncope Committer",
+                "subtitle": "Apache Software Foundation",
+                "description": "Divento committer ufficiale della Apache Software Foundation sul progetto Apache Syncope, contribuendo allo sviluppo di funzionalità, miglioramenti e qualità del codice."
+            },
+            {
+                "year": "2025 - Oggi",
+                "title": "Tirasa s.r.l.",
+                "subtitle": "Software Developer",
+                "description": "Attualmente impegnato nello sviluppo software e nel supporto a clienti enterprise.\nTecnologie: Java, Spring Boot, PostgreSQL, Linux, Apache Syncope, Apereo CAS."
+            }
+        ]
+    },
+    "resume": {
+        "title": "Curriculum",
+        "loading": "Caricamento PDF...",
+        "error": "CV al momento non disponibile."
+    },
+    "openSource": {
+        "title": "Open Source",
+        "intro": "Sono <1>committer ufficiale di Apache Syncope</1> presso la Apache Software Foundation, dove contribuisco allo sviluppo di nuove funzionalità, al miglioramento del codice e alla qualità del progetto.",
+        "loading": "Caricamento dei progetti...",
+        "error": "Impossibile recuperare le informazioni da GitHub.",
+        "noDescription": "Nessuna descrizione disponibile.",
+        "pullRequestCount_one": "Pull Request",
+        "pullRequestCount_other": "Pull Request",
+        "latestPr": "Ultima PR",
+        "contributionsLabel": "Contributi",
+        "noContributions": "Nessuna Pull Request effettuata su questo progetto.",
+        "status": {
+            "merged": "Unita",
+            "open": "Aperta",
+            "closed": "Chiusa"
+        }
+    },
+    "project": {
+        "title": "I Miei Progetti",
+        "viewProject": "Vedi il Progetto",
+        "loadingMore": "Caricamento altri repository...",
+        "curated": {
+            "waterHealth": {
+                "title": "Water Health",
+                "description": "Tesi di laurea triennale: un sistema per interagire con un sensore per il monitoraggio in tempo reale della qualità dell'acqua. Progetto client-side (app Android) e server-side (Spring Boot)."
+            },
+            "portfolio": {
+                "title": "Portfolio Website",
+                "description": "Un sito moderno creato come portfolio e vetrina personale. Presenta i miei progetti, competenze ed esperienza in un layout pulito e organizzato."
+            }
+        }
+    },
+    "contact": {
+        "title": "Contattami"
+    },
+    "footer": {
+        "rights": "Tutti i diritti riservati."
+    },
+    "languageSwitcher": {
+        "label": "Lingua"
+    }
+}

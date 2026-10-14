@@ -1,0 +1,41 @@
+# Deploy sul server:   docker compose pull && docker compose up -d
+# Prova in locale:     docker compose up --build        (poi http://localhost:8080)
+#
+# Servono solo questo file e un .env (vedi .env.example). Le immagini vengono
+# pubblicate su GHCR dalla GitHub Action ad ogni push su master.
+
+services:
+  web:
+    image: ghcr.io/tatonimatteo/portfolio:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      target: web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    volumes:
+      - cv-data:/cv-data:ro
+    depends_on:
+      - cv-updater
+    security_opt:
+      - no-new-privileges:true
+
+  # Controlla una volta al giorno se c'è una nuova release del CV nel repo
+  # privato e aggiorna i PDF nel volume condiviso (nessun restart del sito).
+  cv-updater:
+    image: ghcr.io/tatonimatteo/portfolio-cv-updater:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      target: cv-updater
+    restart: unless-stopped
+    environment:
+      # Senza token il sito parte lo stesso, ma senza CV (il container riprova ogni ora).
+      CV_REPO_TOKEN: ${CV_REPO_TOKEN:-}
+      CV_CHECK_INTERVAL_HOURS: ${CV_CHECK_INTERVAL_HOURS:-24}
+    volumes:
+      - cv-data:/cv-data
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  cv-data:

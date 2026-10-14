@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import {motion} from 'framer-motion';
 import type {NavbarProps} from './Navbar';
+import LanguageSwitcher from '../language-switcher/LanguageSwitcher';
 import './NavbarMobile.css';
 
 const NavbarMobile = ({logo, menuItems, backgroundColor}: NavbarProps) => {
@@ -24,15 +25,17 @@ const NavbarMobile = ({logo, menuItems, backgroundColor}: NavbarProps) => {
             >
                 {menuItems.map((item, index) => {
                     const isContact = index === menuItems.length - 1;
-                    const href = `#${item.toLowerCase().replace(/\s+/g, '-')}`;
                     return (
-                        <li key={index} className={`nav-item ${isContact ? 'contact-item' : ''}`}>
-                            <a href={href} onClick={() => setIsOpen(false)}>
-                                {item}
+                        <li key={item.id} className={`nav-item ${isContact ? 'contact-item' : ''}`}>
+                            <a href={`#${item.id}`} onClick={() => setIsOpen(false)}>
+                                {item.label}
                             </a>
                         </li>
                     );
                 })}
+                <li className="nav-item nav-item-language">
+                    <LanguageSwitcher/>
+                </li>
             </motion.ul>
         </div>
     );

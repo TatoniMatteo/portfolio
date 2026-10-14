@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# CV scaricato dall'ultima release del repo privato (scripts/fetch-cv.mjs)
+public/cv/
+
+# Variabili d'ambiente locali (token)
+.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

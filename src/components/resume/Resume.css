@@ -1,0 +1,17 @@
+.resume-preview {
+    width: 100%;
+    max-width: 700px;
+    height: 80vh;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    background: var(--color-card);
+    padding: 1rem;
+}
+
+@media (max-width: 768px) {
+    .resume-preview {
+        height: 60vh;
+        padding: 0.5rem;
+    }
+}

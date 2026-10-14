@@ -12,7 +12,9 @@ export default tseslint.config([
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
-      reactHooks.configs['recommended-latest'],
+      // Da eslint-plugin-react-hooks v7 la config compatibile con il flat
+      // config sta sotto .flat, non più alla radice.
+      reactHooks.configs.flat['recommended-latest'],
       reactRefresh.configs.vite,
     ],
     languageOptions: {
