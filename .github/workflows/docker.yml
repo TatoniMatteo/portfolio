@@ -1,15 +1,13 @@
 name: Docker images
 
-# Ad ogni push/merge su master costruisce le due immagini (web e cv-updater),
-# le scansiona con Trivy e, solo se non ci sono vulnerabilità HIGH/CRITICAL
-# con fix disponibile, le pubblica su GHCR
-# (ghcr.io/<owner>/portfolio e ghcr.io/<owner>/portfolio-cv-updater).
-# Sulle pull request fa solo build + scan, senza pubblicare nulla.
+# Su ogni push/merge su master costruisce le immagini (web e cv-updater),
+# le scansiona con Trivy e, se non ci sono vulnerabilità HIGH/CRITICAL
+# con fix disponibile, le pubblica su GHCR.
+# Ogni pubblicazione usa i tag latest, data del rilascio e SHA del commit.
+# L'avvio manuale è consentito, ma la pubblicazione avviene solo da master.
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches: [ master ]
   workflow_dispatch:
 
 permissions:
@@ -33,8 +31,6 @@ jobs:
             image: portfolio-cv-updater
     steps:
       - uses: actions/checkout@v7
-
-      # I nomi delle immagini devono essere minuscoli (l'owner qui è TatoniMatteo)
       - name: Nome immagine
         id: name
         run: echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${{ matrix.image }}" >> "$GITHUB_OUTPUT"
@@ -48,14 +44,10 @@ jobs:
           images: ${{ steps.name.outputs.image }}
           tags: |
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+            type=raw,value={{date 'YYYYMMDD'}},enable=${{ github.ref == 'refs/heads/master' }}
             type=sha,prefix=sha-
-          # org.opencontainers.image.source punta a questo repo: è ciò che fa
-          # comparire il package nella sezione "Packages" del repository.
 
-      # Build locale (solo amd64, "load" non supporta multi-piattaforma) per
-      # poter scansionare l'immagine PRIMA di pubblicarla. Le cache sotto
-      # sono condivise con la build multi-piattaforma finale, quindi questo
-      # secondo passaggio costa relativamente poco in più.
+      # Build locale per scansionare l'immagine prima della pubblicazione.
       - uses: docker/build-push-action@v7
         with:
           context: .
@@ -67,26 +59,23 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.target }}
 
       - name: Scansione vulnerabilità (Trivy)
-        uses: aquasecurity/trivy-action@0.36.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: scan/${{ matrix.image }}:${{ github.sha }}
           format: table
           severity: CRITICAL,HIGH
-          # Come per il vecchio problema gh-pages/braces: una vulnerabilità
-          # "alta" ma senza fix disponibile non ha senso che blocchi il
-          # deploy, non c'è nulla da aggiornare per risolverla.
           ignore-unfixed: true
           exit-code: '1'
 
       - uses: docker/login-action@v4
-        if: github.event_name != 'pull_request'
+        if: github.ref == 'refs/heads/master'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: docker/build-push-action@v7
-        if: github.event_name != 'pull_request'
+        if: github.ref == 'refs/heads/master'
         with:
           context: .
           target: ${{ matrix.target }}
