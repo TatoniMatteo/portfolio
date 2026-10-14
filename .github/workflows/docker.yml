@@ -7,7 +7,7 @@ name: Docker images
 # L'avvio manuale è consentito, ma la pubblicazione avviene solo da master.
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:
