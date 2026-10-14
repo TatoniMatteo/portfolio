@@ -1,5 +1,5 @@
 import {useTranslation} from "react-i18next";
-import {faAward, faGraduationCap, faLaptopCode,} from "@fortawesome/free-solid-svg-icons";
+import {faAward, faBriefcase, faGraduationCap, faLaptopCode} from "@fortawesome/free-solid-svg-icons";
 import type {TimelineEvent} from "../timeline/Timeline";
 import Timeline from "../timeline/Timeline";
 import "./Career.css";
@@ -7,9 +7,9 @@ import "./Career.css";
 const icons = [
     faGraduationCap,
     faGraduationCap,
-    faLaptopCode,
+    faBriefcase,
     faAward,
-    faLaptopCode,
+    faBriefcase,
 ];
 
 type TranslatedEvent = Omit<TimelineEvent, "icon">;

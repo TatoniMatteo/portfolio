@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {AnimatePresence, motion} from "framer-motion";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import type {IconDefinition} from "@fortawesome/fontawesome-svg-core";
@@ -18,12 +18,8 @@ interface TimelineProps {
 
 const Timeline = ({ events }: TimelineProps) => {
     const [selected, setSelected] = useState(() => Math.max(0, events.length - 1));
-
-    useEffect(() => {
-        setSelected((current) => Math.min(current, Math.max(0, events.length - 1)));
-    }, [events.length]);
-
-    const selectedEvent = events[selected];
+    const selectedIndex = Math.min(selected, Math.max(0, events.length - 1));
+    const selectedEvent = events[selectedIndex];
 
     return (
         <div className="timeline-wrapper">
@@ -46,7 +42,7 @@ const Timeline = ({ events }: TimelineProps) => {
                         viewport={{ once: false, amount: 0.3 }}
                         transition={{ type: "spring", stiffness: 80, damping: 20 }}
                     >
-                        <div className={`timeline-icon ${selected === index ? "active" : ""}`}>
+                        <div className={`timeline-icon ${selectedIndex === index ? "active" : ""}`}>
                             <FontAwesomeIcon icon={event.icon} size="lg" />
                         </div>
 
@@ -65,7 +61,7 @@ const Timeline = ({ events }: TimelineProps) => {
                 <AnimatePresence mode="wait">
                     {selectedEvent && (
                         <motion.div
-                            key={`${selectedEvent.year}-${selected}`}
+                            key={`${selectedEvent.year}-${selectedIndex}`}
                             className="timeline-detail-card"
                             initial={{opacity: 0, y: 20, scale: 0.95}}
                             animate={{opacity: 1, y: 0, scale: 1}}
