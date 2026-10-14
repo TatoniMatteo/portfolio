@@ -1,0 +1,11 @@
+node_modules
+dist
+dist-ssr
+.git
+.github
+.env
+.env.*
+!.env.example
+public/cv
+*.log
+NOTES-DA-CANCELLARE.md

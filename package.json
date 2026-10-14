@@ -1,16 +1,16 @@
 {
   "name": "portfolio",
-  "homepage": " https://portfolio.matato.it.eu.org/",
+  "homepage": "https://portfolio.matato.it.eu.org/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "fetch-cv": "node scripts/fetch-cv.mjs",
+    "predev": "npm run fetch-cv",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "predeploy": "npm run build && cp CNAME dist/",
-    "deploy": "gh-pages -d dist"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
@@ -18,25 +18,27 @@
     "@fortawesome/free-solid-svg-icons": "^7.0.0",
     "@fortawesome/react-fontawesome": "^3.0.0",
     "framer-motion": "^12.23.12",
-    "gh-pages": "^6.3.0",
-    "pdfjs-dist": "^5.4.394",
+    "i18next": "^24.2.0",
+    "i18next-browser-languagedetector": "^8.0.2",
+    "pdfjs-dist": "^6.3.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "react-i18next": "^15.4.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.33.0",
+    "@eslint/js": "^10.0.1",
     "@types/node": "^24.10.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^5.0.0",
-    "eslint": "^9.33.0",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.20",
+    "eslint": "^10.10.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.6",
     "globals": "^16.3.0",
     "sass": "^1.90.0",
     "typescript": "~5.8.3",
-    "typescript-eslint": "^8.39.1",
-    "vite": "7.1.11",
+    "typescript-eslint": "^8.70.0",
+    "vite": "^7.3.6",
     "vite-plugin-svgr": "^4.3.0"
   }
 }

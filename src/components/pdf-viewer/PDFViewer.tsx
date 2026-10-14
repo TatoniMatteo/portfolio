@@ -1,4 +1,5 @@
 import {useEffect, useRef, useState} from "react";
+import {useTranslation} from "react-i18next";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
     faChevronLeft,
@@ -13,28 +14,42 @@ import "./PDFViewer.css";
 
 GlobalWorkerOptions.workerSrc = workerSrc;
 
-const PDFViewer = ({src}: { src: string }) => {
+const PDFViewer = ({src, downloadName}: { src: string; downloadName?: string }) => {
+    const {t} = useTranslation();
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
     const [pageNum, setPageNum] = useState(1);
     const [scale, setScale] = useState(1.0);
-    const [fitScale, setFitScale] = useState(1.0);
     const [position, setPosition] = useState({x: 0, y: 0});
     const [isDragging, setIsDragging] = useState(false);
+    const [error, setError] = useState(false);
     const dragStart = useRef({x: 0, y: 0});
 
     // Carica PDF
     useEffect(() => {
+        let cancelled = false;
+
         const loadPdf = async () => {
             try {
-                const pdf = await pdfjsLib.getDocument(src).promise;
+                // pdfjs-dist v6: getDocument non accetta più una stringa
+                // diretta, va passato un oggetto { url }.
+                const pdf = await pdfjsLib.getDocument({url: src}).promise;
+                if (cancelled) return;
                 setPdfDoc(pdf);
+                setPageNum(1); // es. cambio lingua: si riparte dalla prima pagina
+                setError(false);
             } catch (e) {
+                if (cancelled) return;
                 console.error("Errore nel caricamento del PDF:", e);
+                setError(true);
             }
         };
         loadPdf();
+
+        return () => {
+            cancelled = true;
+        };
     }, [src]);
 
     // Renderizza PDF
@@ -60,10 +75,9 @@ const PDFViewer = ({src}: { src: string }) => {
             const widthRatio = containerWidth / viewport.width;
             const heightRatio = containerHeight / viewport.height;
 
-            const newFitScale = Math.min(widthRatio, heightRatio);
-            if (fitScale !== newFitScale) setFitScale(newFitScale);
+            const fitScale = Math.min(widthRatio, heightRatio);
 
-            const finalScale = newFitScale * scale;
+            const finalScale = fitScale * scale;
             const scaledViewport = page.getViewport({scale: finalScale});
 
             const outputScale = window.devicePixelRatio || 1;
@@ -86,7 +100,7 @@ const PDFViewer = ({src}: { src: string }) => {
             try {
                 await renderTask.promise;
             } catch (e) {
-                if ((e as any).name !== "RenderingCancelledException") {
+                if ((e as Error).name !== "RenderingCancelledException") {
                     console.error("Errore nel rendering PDF:", e);
                 }
             }
@@ -158,7 +172,7 @@ const PDFViewer = ({src}: { src: string }) => {
     const handleDownload = () => {
         const link = document.createElement("a");
         link.href = src;
-        link.download = src.split("/").pop() || "document.pdf";
+        link.download = downloadName ?? (src.split("/").pop() || "document.pdf");
         link.click();
     };
 
@@ -231,10 +245,16 @@ const PDFViewer = ({src}: { src: string }) => {
                 </div>
             </div>
 
-            {!pdfDoc && (
+            {!pdfDoc && !error && (
                 <div className="pdf-loader">
                     <div className="spinner"/>
-                    <span>Caricamento PDF...</span>
+                    <span>{t('resume.loading')}</span>
+                </div>
+            )}
+
+            {error && (
+                <div className="pdf-loader" role="alert">
+                    <span>{t('resume.error')}</span>
                 </div>
             )}
         </div>

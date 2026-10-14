@@ -1,5 +1,5 @@
 import {motion} from 'framer-motion';
-import resume from '../../assets/documents/CV-Matteo-Tatoni.pdf'
+import {useTranslation} from 'react-i18next';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faEnvelope,} from '@fortawesome/free-solid-svg-icons';
 import {
@@ -15,7 +15,6 @@ import {
 } from '@fortawesome/free-brands-svg-icons';
 import './Contact.css';
 import type {IconDefinition} from "@fortawesome/fontawesome-svg-core";
-import PDFViewer from "../pdf-viewer/PDFViewer.tsx";
 
 interface ContactItem {
     label: string;
@@ -43,10 +42,12 @@ const contacts: ContactItem[] = [
 ];
 
 const Contact = () => {
+    const {t} = useTranslation();
+
     return (
         <div className="section" id="contact-me">
             <div className="section-title">
-                <h1>Contact Me</h1>
+                <h1>{t('contact.title')}</h1>
             </div>
             <div className="section-contacts">
                 <div className="contact-grid">
@@ -70,16 +71,6 @@ const Contact = () => {
                         </motion.a>
                     ))}
                 </div>
-
-                <motion.div
-                    className="cv-preview"
-                    initial={{opacity: 0, scale: 0.9}}
-                    whileInView={{opacity: 1, scale: 1}}
-                    viewport={{once: false, amount: 0.3}}
-                    transition={{duration: 0.8}}
-                >
-                    <PDFViewer src={resume}/>
-                </motion.div>
             </div>
         </div>
     );

@@ -3,7 +3,7 @@
     --about-card-border: var(--color-border);
     --about-card-text: var(--color-text);
     --about-card-title: var(--color-primary);
-    --skill-max-width: 100px;
+    --skill-max-width: 70px;
     --enhance-gradient: linear-gradient(270deg, var(--color-primary), var(--color-accent), var(--color-primary));
 }
 

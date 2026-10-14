@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import HeroDesktop from './HeroDesktop';
 import HeroMobile from './HeroMobile';
 import profile_img from '../../assets/images/profile.jpeg';
-import resume from '../../assets/documents/CV-Matteo-Tatoni.pdf';
+import { useIsMobile } from '../../hooks/useIsMobile';
+import { useResumeUrl } from '../../hooks/useResumeUrl';
 import './Hero.css';
 
 export type HeroProps = {
@@ -14,20 +15,16 @@ export type HeroProps = {
 };
 
 const Hero = () => {
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-
-    useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth <= 768);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    const isMobile = useIsMobile();
+    const { t } = useTranslation();
+    const resume = useResumeUrl();
 
     const props: HeroProps = {
         profileImg: profile_img,
         resumeFile: resume,
-        name: "Matteo Tatoni",
-        role: "Software Developer",
-        description: "I build reliable and scalable software solutions that deliver impactful digital experiences."
+        name: "Matteo Tatoni", // nome proprio: non va tradotto
+        role: t('hero.role'),
+        description: t('hero.description'),
     };
 
     return isMobile ? <HeroMobile {...props} /> : <HeroDesktop {...props} />;

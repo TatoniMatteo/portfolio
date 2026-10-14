@@ -1,14 +1,15 @@
 import {motion} from 'framer-motion';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import type {AboutProps} from './About';
 import './AboutMobile.css';
 
-const AboutMobile = ({skills, info, name, description}: AboutProps) => {
+const AboutMobile = ({skills, info, name, description, title}: AboutProps) => {
     const sortedInfo = [...info].sort((a, b) => a.order - b.order);
 
     return (
         <div className="section about-mobile" id="about-me">
             <div className="section-title">
-                <h1>About Me</h1>
+                <h1>{title}</h1>
             </div>
 
             <div className="about-sections-mobile">
@@ -58,11 +59,14 @@ const AboutMobile = ({skills, info, name, description}: AboutProps) => {
                                 }
                             }}
                             style={{display: 'inline-block', cursor: 'pointer'}}
+                            title={skill.label}
                         >
                             {skill.type === 'svg' && skill.Component ? (
-                                <skill.Component className="skill-mobile"/>
+                                <skill.Component className="skill-mobile" aria-label={skill.label}/>
                             ) : skill.type === 'img' && skill.src ? (
-                                <img className="skill-mobile" src={skill.src} alt={skill.alt}/>
+                                <img className="skill-mobile" src={skill.src} alt={skill.alt ?? skill.label}/>
+                            ) : skill.type === 'fa' && skill.faIcon ? (
+                                <FontAwesomeIcon className="skill-mobile" icon={skill.faIcon} aria-label={skill.label}/>
                             ) : null}
                         </motion.div>
                     ))}

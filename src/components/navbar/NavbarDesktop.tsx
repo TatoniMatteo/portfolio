@@ -1,5 +1,6 @@
 import {motion} from 'framer-motion';
 import type {NavbarProps} from './Navbar';
+import LanguageSwitcher from '../language-switcher/LanguageSwitcher';
 import './NavbarDesktop.css';
 
 const NavbarDesktop = ({logo, menuItems, backgroundColor}: NavbarProps) => {
@@ -17,21 +18,22 @@ const NavbarDesktop = ({logo, menuItems, backgroundColor}: NavbarProps) => {
             <ul className="nav-menu">
                 {menuItems.map((item, index) => {
                     const isContact = index === menuItems.length - 1;
-                    const href = `#${item.toLowerCase().replace(/\s+/g, '-')}`;
                     return (
                         <motion.li
-                            key={index}
+                            key={item.id}
                             className={`nav-item ${isContact ? 'contact-item' : ''}`}
                             initial={{opacity: 0, y: -10}}
                             whileInView={{opacity: 1, y: 0}}
                             transition={{duration: 0.3, ease: "easeOut"}}
                             whileHover={isContact ? {scale: 1.05} : {}}
                         >
-                            <a href={href}>{item}</a>
+                            <a href={`#${item.id}`}>{item.label}</a>
                         </motion.li>
                     );
                 })}
             </ul>
+
+            <LanguageSwitcher/>
         </div>
     );
 };

@@ -1,13 +1,17 @@
 import {motion} from 'framer-motion';
+import {useTranslation} from 'react-i18next';
 import type {HeroProps} from './Hero';
+import {RESUME_DOWNLOAD_NAME} from '../../hooks/useResumeUrl';
 import './HeroDesktop.css';
 
 const HeroDesktop = ({profileImg, resumeFile, name, role, description}: HeroProps) => {
+    const {t} = useTranslation();
+
     return (
         <div className="section hero-desktop" id="home">
             <motion.img
                 src={profileImg}
-                alt="profile image"
+                alt={`${t('hero.greeting', {name})}, ${role}`}
                 initial={{opacity: 0, scale: 0.8}}
                 whileInView={{opacity: 1, scale: 1}}
                 viewport={{once: false, amount: 0.5}}
@@ -20,7 +24,7 @@ const HeroDesktop = ({profileImg, resumeFile, name, role, description}: HeroProp
                 viewport={{once: false, amount: 0.5}}
                 transition={{duration: 0.8, delay: 0.2}}
             >
-                <span>{`I'm ${name}`}</span><br/> {role}
+                <span>{t('hero.greeting', {name})}</span><br/> {role}
             </motion.h1>
 
             <motion.p
@@ -40,10 +44,10 @@ const HeroDesktop = ({profileImg, resumeFile, name, role, description}: HeroProp
                 transition={{duration: 0.8, delay: 0.6}}
             >
                 <div className="hero-contact">
-                    <a href="#contact-me">Contact Me</a>
+                    <a href="#contact-me">{t('hero.contact')}</a>
                 </div>
                 <div className="hero-resume">
-                    <a href={resumeFile} download>My resume</a>
+                    <a href={resumeFile} download={RESUME_DOWNLOAD_NAME}>{t('hero.resume')}</a>
                 </div>
             </motion.div>
         </div>

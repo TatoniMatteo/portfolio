@@ -1,20 +1,26 @@
 .navbar-desktop {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
-    justify-content: space-between;
+    gap: clamp(16px, 3vw, 40px);
     margin: 20px auto 0 auto;
     max-width: 1200px;
     height: var(--navbar-height);
     padding: 0 10px;
 
-
     .nav-menu {
         display: flex;
         flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
         align-items: center;
         list-style: none;
-        gap: 60px;
-        font-size: 20px;
+        row-gap: 8px;
+        /* Gap fluido: si stringe gradualmente con lo spazio disponibile
+           invece di saltare a valori fissi a ogni breakpoint. */
+        column-gap: clamp(10px, 1.6vw, 32px);
+        font-size: clamp(14px, 1vw, 18px);
+        white-space: nowrap;
     }
 
     .nav-item {
@@ -34,9 +40,8 @@
 
     .contact-item {
         background: linear-gradient(267deg, var(--color-primary), var(--color-accent));
-        padding: 15px 35px;
+        padding: 10px 22px;
         border-radius: 50px;
-        font-size: 22px;
         transition: transform 0.2s ease, background 0.2s ease;
     }
 
@@ -47,31 +52,5 @@
     .contact-item a {
         color: var(--color-text);
         text-decoration: none;
-    }
-
-    @media (max-width: 1100px) {
-        .nav-menu {
-            gap: 50px;
-        }
-    }
-
-    @media (max-width: 1000px) {
-        .nav-menu {
-            gap: 40px;
-            font-size: 19px;
-        }
-    }
-
-    @media (max-width: 900px) {
-        .nav-menu {
-            gap: 30px;
-        }
-    }
-
-    @media (max-width: 800px) {
-        .nav-menu {
-            gap: 20px;
-            font-size: 18px;
-        }
     }
 }
