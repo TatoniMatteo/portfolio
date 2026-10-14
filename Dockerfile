@@ -9,7 +9,7 @@
 # senza ricostruire nulla e nessun token finisce in un'immagine.
 
 # ---- build del frontend (gira sempre sulla piattaforma del builder: veloce anche per arm64) ----
-FROM --platform=$BUILDPLATFORM node:22-alpine AS build
+FROM --platform=$BUILDPLATFORM node:25-alpine AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
@@ -35,7 +35,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
 
 
 # ---- immagine cv-updater ----
-FROM node:22-alpine AS cv-updater
+FROM node:25-alpine AS cv-updater
 WORKDIR /app
 
 RUN mkdir -p /cv-data && chown node:node /cv-data
