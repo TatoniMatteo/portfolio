@@ -1,12 +1,12 @@
-// Footer.tsx
-import { motion } from "framer-motion";
-import { useTranslation } from "react-i18next";
-import './Footer.css';
+import {motion} from "framer-motion";
+import {useTranslation} from "react-i18next";
+import {CURRENT_YEAR} from "../../utils/date";
+import "./Footer.css";
 
 const Footer = () => {
     const { t } = useTranslation();
-    const currentYear = new Date().getFullYear();
-    const yearText = currentYear === 2025 ? "2025" : `2025 - ${currentYear}`;
+
+    const yearText = CURRENT_YEAR === 2025 ? "2025" : `2025 - ${CURRENT_YEAR}`;
 
     return (
         <motion.footer
@@ -23,7 +23,7 @@ const Footer = () => {
                 viewport={{ once: false, amount: 0.3 }}
                 transition={{ delay: 0.3, duration: 1 }}
             >
-                <p>© {yearText} Matteo Tatoni. {t('footer.rights')}</p>
+                <p>© {yearText} Matteo Tatoni. {t("footer.rights")}</p>
             </motion.div>
         </motion.footer>
     );

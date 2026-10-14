@@ -224,29 +224,34 @@ const OpenSource = () => {
     const [error, setError] = useState(false);
 
     useEffect(() => {
+        let cancelled = false;
+
         const loadProjects = async () => {
             try {
                 setLoading(true);
                 setError(false);
 
-                const results = await Promise.all(
-                    projects.map(loadProject),
-                );
+                const results = await Promise.all(projects.map(loadProject));
 
-                setContributions(results);
+                if (!cancelled) {
+                    setContributions(results);
+                }
             } catch (err) {
-                console.error(
-                    'Unable to load GitHub contributions',
-                    err,
-                );
-
-                setError(true);
+                if (!cancelled) {
+                    console.error("Unable to load GitHub contributions", err);
+                    setError(true);
+                }
             } finally {
-                setLoading(false);
+                if (!cancelled) {
+                    setLoading(false);
+                }
             }
         };
 
-        loadProjects();
+        void loadProjects();
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     return (

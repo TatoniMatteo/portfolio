@@ -108,7 +108,8 @@ const Project = () => {
             }
         };
 
-        loadRepos();
+        void loadRepos();
+
         return () => {
             cancelled = true;
         };
