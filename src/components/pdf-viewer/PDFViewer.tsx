@@ -1,11 +1,8 @@
+import type {MouseEvent} from "react";
 import {useEffect, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {
-    faChevronLeft,
-    faChevronRight,
-    faDownload, faPlus, faMinus
-} from "@fortawesome/free-solid-svg-icons";
+import {faChevronLeft, faChevronRight, faDownload, faMinus, faPlus,} from "@fortawesome/free-solid-svg-icons";
 import * as pdfjsLib from "pdfjs-dist";
 import {GlobalWorkerOptions} from "pdfjs-dist";
 import workerSrc from "pdfjs-dist/build/pdf.worker?url";
@@ -14,126 +11,164 @@ import "./PDFViewer.css";
 
 GlobalWorkerOptions.workerSrc = workerSrc;
 
-const PDFViewer = ({src, downloadName}: { src: string; downloadName?: string }) => {
+const isRenderingCancelled = (error: unknown): boolean =>
+    error instanceof Error && error.name === "RenderingCancelledException";
+
+interface PDFViewerProps {
+    src: string;
+    downloadName?: string;
+}
+
+const PDFViewer = ({src, downloadName}: PDFViewerProps) => {
     const {t} = useTranslation();
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
     const [pageNum, setPageNum] = useState(1);
-    const [scale, setScale] = useState(1.0);
+    const [scale, setScale] = useState(1);
     const [position, setPosition] = useState({x: 0, y: 0});
     const [isDragging, setIsDragging] = useState(false);
     const [error, setError] = useState(false);
     const dragStart = useRef({x: 0, y: 0});
 
-    // Carica PDF
     useEffect(() => {
         let cancelled = false;
+        const loadingTask = pdfjsLib.getDocument({url: src});
 
-        const loadPdf = async () => {
+        const loadPdf = async (): Promise<void> => {
             try {
-                // pdfjs-dist v6: getDocument non accetta più una stringa
-                // diretta, va passato un oggetto { url }.
-                const pdf = await pdfjsLib.getDocument({url: src}).promise;
-                if (cancelled) return;
+                const pdf = await loadingTask.promise;
+
+                if (cancelled) {
+                    return;
+                }
+
                 setPdfDoc(pdf);
-                setPageNum(1); // es. cambio lingua: si riparte dalla prima pagina
+                setPageNum(1);
                 setError(false);
-            } catch (e) {
-                if (cancelled) return;
-                console.error("Errore nel caricamento del PDF:", e);
+            } catch (cause: unknown) {
+                if (cancelled) {
+                    return;
+                }
+
+                console.error("Errore nel caricamento del PDF:", cause);
                 setError(true);
             }
         };
-        loadPdf();
+
+        void loadPdf();
 
         return () => {
             cancelled = true;
+            void loadingTask.destroy().catch(() => undefined);
         };
     }, [src]);
 
-    // Renderizza PDF
     useEffect(() => {
-        if (!pdfDoc) return;
+        if (!pdfDoc) {
+            return () => undefined;
+        }
 
+        let cancelled = false;
         let renderTask: pdfjsLib.RenderTask | null = null;
         let resizeTimeout: number | undefined;
+        let renderGeneration = 0;
 
-        const renderPage = async () => {
-            const canvas = canvasRef.current;
-            const container = containerRef.current;
-            if (!canvas || !container) return;
-            const ctx = canvas.getContext("2d");
-            if (!ctx) return;
+        const renderPage = async (): Promise<void> => {
+            const generation = ++renderGeneration;
 
-            const page = await pdfDoc.getPage(pageNum);
-
-            const containerWidth = container.clientWidth;
-            const containerHeight = container.clientHeight;
-
-            const viewport = page.getViewport({scale: 1});
-            const widthRatio = containerWidth / viewport.width;
-            const heightRatio = containerHeight / viewport.height;
-
-            const fitScale = Math.min(widthRatio, heightRatio);
-
-            const finalScale = fitScale * scale;
-            const scaledViewport = page.getViewport({scale: finalScale});
-
-            const outputScale = window.devicePixelRatio || 1;
-            canvas.width = scaledViewport.width * outputScale;
-            canvas.height = scaledViewport.height * outputScale;
-            canvas.style.width = `${scaledViewport.width}px`;
-            canvas.style.height = `${scaledViewport.height}px`;
-
-            ctx.setTransform(outputScale, 0, 0, outputScale, 0, 0);
-            ctx.clearRect(0, 0, scaledViewport.width, scaledViewport.height);
-
-            if (renderTask) renderTask.cancel();
-
-            renderTask = page.render({
-                canvasContext: ctx,
-                viewport: scaledViewport,
-                canvas,
-            });
+            renderTask?.cancel();
+            renderTask = null;
 
             try {
-                await renderTask.promise;
-            } catch (e) {
-                if ((e as Error).name !== "RenderingCancelledException") {
-                    console.error("Errore nel rendering PDF:", e);
+                const canvas = canvasRef.current;
+                const container = containerRef.current;
+
+                if (!canvas || !container) {
+                    return;
+                }
+
+                const context = canvas.getContext("2d");
+
+                if (!context) {
+                    return;
+                }
+
+                const page = await pdfDoc.getPage(pageNum);
+
+                if (cancelled || generation !== renderGeneration) {
+                    return;
+                }
+
+                const viewport = page.getViewport({scale: 1});
+                const widthRatio = container.clientWidth / viewport.width;
+                const heightRatio = container.clientHeight / viewport.height;
+                const fitScale = Math.min(widthRatio, heightRatio);
+                const scaledViewport = page.getViewport({scale: fitScale * scale});
+                const outputScale = window.devicePixelRatio || 1;
+
+                canvas.width = Math.floor(scaledViewport.width * outputScale);
+                canvas.height = Math.floor(scaledViewport.height * outputScale);
+                canvas.style.width = `${scaledViewport.width}px`;
+                canvas.style.height = `${scaledViewport.height}px`;
+
+                context.setTransform(outputScale, 0, 0, outputScale, 0, 0);
+                context.clearRect(0, 0, scaledViewport.width, scaledViewport.height);
+
+                const task = page.render({
+                    canvasContext: context,
+                    viewport: scaledViewport,
+                    canvas,
+                });
+
+                renderTask = task;
+                await task.promise;
+
+                if (!cancelled && generation === renderGeneration) {
+                    setPosition({x: 0, y: 0});
+                }
+            } catch (cause: unknown) {
+                if (!cancelled && !isRenderingCancelled(cause)) {
+                    console.error("Errore nel rendering PDF:", cause);
                 }
             }
-
-            // Reset posizione dopo resize o page change
-            setPosition({x: 0, y: 0});
         };
 
-        renderPage();
+        const handleResize = (): void => {
+            if (resizeTimeout !== undefined) {
+                window.clearTimeout(resizeTimeout);
+            }
 
-        const handleResize = () => {
-            if (resizeTimeout) window.clearTimeout(resizeTimeout);
-            resizeTimeout = window.setTimeout(renderPage, 250);
+            resizeTimeout = window.setTimeout(() => {
+                void renderPage();
+            }, 250);
         };
 
+        void renderPage();
         window.addEventListener("resize", handleResize);
 
         return () => {
-            if (renderTask) renderTask.cancel();
+            cancelled = true;
+            renderGeneration++;
+            renderTask?.cancel();
             window.removeEventListener("resize", handleResize);
-            if (resizeTimeout) window.clearTimeout(resizeTimeout);
+
+            if (resizeTimeout !== undefined) {
+                window.clearTimeout(resizeTimeout);
+            }
         };
     }, [pdfDoc, pageNum, scale]);
 
-    // Calcola i limiti del pan per non uscire dal documento
     const getPanBounds = () => {
         const canvas = canvasRef.current;
         const container = containerRef.current;
-        if (!canvas || !container) return {minX: 0, maxX: 0, minY: 0, maxY: 0};
+
+        if (!canvas || !container) {
+            return {minX: 0, maxX: 0, minY: 0, maxY: 0};
+        }
 
         const canvasRect = canvas.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
-
         const extraX = Math.max(0, canvasRect.width - containerRect.width);
         const extraY = Math.max(0, canvasRect.height - containerRect.height);
 
@@ -145,31 +180,34 @@ const PDFViewer = ({src, downloadName}: { src: string; downloadName?: string }) 
         };
     };
 
-    // Gestione drag limitato
-    const handleMouseDown = (e: React.MouseEvent) => {
+    const handleMouseDown = (event: MouseEvent<HTMLDivElement>): void => {
         setIsDragging(true);
         dragStart.current = {
-            x: e.clientX - position.x,
-            y: e.clientY - position.y,
+            x: event.clientX - position.x,
+            y: event.clientY - position.y,
         };
     };
 
-    const handleMouseMove = (e: React.MouseEvent) => {
-        if (!isDragging) return;
+    const handleMouseMove = (event: MouseEvent<HTMLDivElement>): void => {
+        if (!isDragging) {
+            return;
+        }
+
         const bounds = getPanBounds();
+        const newX = event.clientX - dragStart.current.x;
+        const newY = event.clientY - dragStart.current.y;
 
-        const newX = e.clientX - dragStart.current.x;
-        const newY = e.clientY - dragStart.current.y;
-
-        const clampedX = Math.min(Math.max(newX, bounds.minX), bounds.maxX);
-        const clampedY = Math.min(Math.max(newY, bounds.minY), bounds.maxY);
-
-        setPosition({x: clampedX, y: clampedY});
+        setPosition({
+            x: Math.min(Math.max(newX, bounds.minX), bounds.maxX),
+            y: Math.min(Math.max(newY, bounds.minY), bounds.maxY),
+        });
     };
 
-    const handleMouseUp = () => setIsDragging(false);
+    const handleMouseUp = (): void => {
+        setIsDragging(false);
+    };
 
-    const handleDownload = () => {
+    const handleDownload = (): void => {
         const link = document.createElement("a");
         link.href = src;
         link.download = downloadName ?? (src.split("/").pop() || "document.pdf");
@@ -199,22 +237,24 @@ const PDFViewer = ({src, downloadName}: { src: string; downloadName?: string }) 
                 <div className="pdf-nav">
                     <button
                         className="pdf-btn"
-                        onClick={() => setPageNum(pageNum > 1 ? pageNum - 1 : pageNum)}
+                        onClick={() => setPageNum((current) => Math.max(1, current - 1))}
                         disabled={!pdfDoc || pageNum === 1}
+                        aria-label={t("resume.previousPage", "Pagina precedente")}
                     >
                         <FontAwesomeIcon icon={faChevronLeft}/>
                     </button>
 
                     <span className="pdf-page-info">
-            {pdfDoc ? `${pageNum} / ${pdfDoc.numPages}` : "– / –"}
-          </span>
+                        {pdfDoc ? `${pageNum} / ${pdfDoc.numPages}` : "– / –"}
+                    </span>
 
                     <button
                         className="pdf-btn"
                         onClick={() =>
-                            setPageNum(pageNum < (pdfDoc?.numPages || 1) ? pageNum + 1 : pageNum)
+                            setPageNum((current) => Math.min(pdfDoc?.numPages ?? 1, current + 1))
                         }
-                        disabled={!pdfDoc || pageNum === pdfDoc?.numPages}
+                        disabled={!pdfDoc || pageNum === pdfDoc.numPages}
+                        aria-label={t("resume.nextPage", "Pagina successiva")}
                     >
                         <FontAwesomeIcon icon={faChevronRight}/>
                     </button>
@@ -223,23 +263,30 @@ const PDFViewer = ({src, downloadName}: { src: string; downloadName?: string }) 
                 <div className="pdf-tools">
                     <button
                         className="pdf-btn"
-                        onClick={() => setScale(prev => Math.max(prev - 0.2, 0.5))}
+                        onClick={() => setScale((current) => Math.max(current - 0.2, 0.5))}
                         disabled={scale <= 0.5}
                         title="Zoom Out"
+                        aria-label={t("resume.zoomOut", "Riduci zoom")}
                     >
                         <FontAwesomeIcon icon={faMinus}/>
                     </button>
 
                     <button
                         className="pdf-btn"
-                        onClick={() => setScale(prev => Math.min(prev + 0.2, 3))}
+                        onClick={() => setScale((current) => Math.min(current + 0.2, 3))}
                         disabled={scale >= 3}
                         title="Zoom In"
+                        aria-label={t("resume.zoomIn", "Aumenta zoom")}
                     >
                         <FontAwesomeIcon icon={faPlus}/>
                     </button>
 
-                    <button className="pdf-btn" onClick={handleDownload} title="Download PDF">
+                    <button
+                        className="pdf-btn"
+                        onClick={handleDownload}
+                        title="Download PDF"
+                        aria-label={t("resume.download", "Scarica PDF")}
+                    >
                         <FontAwesomeIcon icon={faDownload}/>
                     </button>
                 </div>
@@ -248,13 +295,13 @@ const PDFViewer = ({src, downloadName}: { src: string; downloadName?: string }) 
             {!pdfDoc && !error && (
                 <div className="pdf-loader">
                     <div className="spinner"/>
-                    <span>{t('resume.loading')}</span>
+                    <span>{t("resume.loading")}</span>
                 </div>
             )}
 
             {error && (
                 <div className="pdf-loader" role="alert">
-                    <span>{t('resume.error')}</span>
+                    <span>{t("resume.error")}</span>
                 </div>
             )}
         </div>
