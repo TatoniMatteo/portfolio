@@ -12,8 +12,7 @@
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
-
-    /* Linting */
+    "composite": true,
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,

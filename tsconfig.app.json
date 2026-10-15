@@ -15,8 +15,8 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "resolveJsonModule": true,
-
-    /* Linting */
+    "esModuleInterop": true,
+    "composite": true,
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
