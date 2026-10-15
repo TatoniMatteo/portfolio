@@ -2,18 +2,17 @@
 #
 # Un solo Dockerfile, due immagini (target):
 #   --target web          sito statico servito da Caddy (porta 80)
-#   --target cv-updater   controlla ogni giorno la release del CV e aggiorna i PDF
+#   --target cv-updater   controlla la release del CV e aggiorna i PDF
 #
-# I PDF del CV NON sono dentro l'immagine web: stanno in un volume condiviso
-# (/cv-data) che il cv-updater tiene aggiornato. Così il sito si aggiorna
-# senza ricostruire nulla e nessun token finisce in un'immagine.
+# I PDF del CV sono conservati nel volume condiviso /cv-data.
+# Il cv-updater li aggiorna senza ricostruire il sito e senza includere token
+# nell'immagine web.
 
 # ---- build del frontend ----
 FROM --platform=$BUILDPLATFORM node:24-alpine AS build
 
 WORKDIR /app
 
-# Aggiorna i pacchetti Alpine disponibili.
 RUN apk upgrade --no-cache
 
 COPY package.json package-lock.json ./
@@ -23,10 +22,25 @@ COPY . .
 RUN npm run build
 
 
-# ---- immagine web ----
-FROM caddy:2-alpine AS web
+# ---- build personalizzata di Caddy ----
+FROM caddy:2.11.7-builder-alpine AS caddy-build
 
-# Aggiorna Alpine e prepara il volume condiviso dei CV.
+# Usa una versione Go aggiornata per includere le correzioni di sicurezza.
+ENV GOTOOLCHAIN=go1.27.2
+
+# Aggiorna x/net senza registrarlo come plugin Caddy.
+# --with non è adatto: x/net non è un plugin importabile da xcaddy.
+RUN xcaddy build v2.11.7 \
+    --replace golang.org/x/net=golang.org/x/net@v0.61.0 \
+    --output /usr/bin/caddy
+
+
+# ---- immagine web ----
+FROM caddy:2.11.7-alpine AS web
+
+# Sostituisce il binario ufficiale con quello ricompilato.
+COPY --from=caddy-build /usr/bin/caddy /usr/bin/caddy
+
 RUN apk upgrade --no-cache \
     && mkdir -p /cv-data \
     && chown 1000:1000 /cv-data
@@ -43,6 +57,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
 # ---- immagine cv-updater ----
 FROM node:24-alpine AS cv-updater
 
+# Non servono npm, npx, Corepack o Yarn durante l'esecuzione.
 RUN apk upgrade --no-cache \
     && rm -rf \
         /usr/local/lib/node_modules/npm \
