@@ -22,6 +22,9 @@ public/cv/
 .env.*
 !.env.example
 !.env.*.example
+secrets/
+*.pem
+*.key
 
 # Editor directories and files
 .vscode/*

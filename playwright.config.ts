@@ -2,6 +2,7 @@ import {defineConfig} from '@playwright/test';
 
 export default defineConfig({
     testDir: './tests',
+    testIgnore: '**/updater/**',
     fullyParallel: true,
     reporter: [['list'], ['html', {open: 'never'}]],
     snapshotPathTemplate: '{testDir}/__screenshots__/{platform}/{arg}{ext}',

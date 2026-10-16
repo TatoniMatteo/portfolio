@@ -1,0 +1,11 @@
+# docker compose -f docker-compose.yml -f docker-compose.github-app.yml up -d --no-build
+services:
+  cv-updater:
+    environment:
+      CV_APP_PRIVATE_KEY_FILE: /run/secrets/cv_app_key
+    secrets:
+      - cv_app_key
+
+secrets:
+  cv_app_key:
+    file: ${CV_APP_PRIVATE_KEY_PATH:-./secrets/cv-app.pem}

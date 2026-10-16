@@ -29,8 +29,8 @@ npm run dev
 ```
 
 Styles use a single [SASS theme](src/styles/README.md); translations live in `src/i18n/locales/`.
-Open Source repositories are listed in `src/data/openSource.ts`; the layout adapts automatically. CV downloads use `CV_REPO_TOKEN` or an
-authenticated GitHub CLI session; the site also starts without the PDFs.
+Open Source repositories are listed in `src/data/openSource.ts`; the layout adapts automatically.
+CV downloads support a GitHub App with automatic token renewal, a PAT or GitHub CLI authentication.
 
 | Command           | Description                                 |
 |:------------------|:--------------------------------------------|
@@ -44,6 +44,7 @@ authenticated GitHub CLI session; the site also starts without the PDFs.
 ```bash
 npx playwright install chromium
 npm test
+npm run test:updater
 ```
 
 Playwright covers responsive layouts, keyboard navigation, language switching,
@@ -70,13 +71,11 @@ independently. On pushes to `main`, [GitHub Actions](.github/workflows/docker.ym
 builds, scans with Trivy and publishes both images to GHCR.
 
 ```bash
-cp .env.example .env
-# Set CV_REPO_TOKEN in .env
-
 docker compose pull
-docker compose up -d
+docker compose up -d --no-build
 ```
 
 Available at **[localhost:8080](http://localhost:8080)** by default.
+Only Compose files and server credentials are needed; no source checkout is required.
+See the [deployment guide](DEPLOYMENT.md) for GitHub App setup, HTTPS and troubleshooting.
 For a local image build, run `docker compose up --build`.
-See the [deployment guide](DEPLOYMENT.md) for credentials, HTTPS and troubleshooting.

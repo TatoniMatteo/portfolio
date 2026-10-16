@@ -74,6 +74,7 @@ RUN apk upgrade --no-cache \
 WORKDIR /app
 
 COPY --chown=node:node scripts/fetch-cv.mjs ./fetch-cv.mjs
+COPY --chown=node:node scripts/github-auth.mjs ./github-auth.mjs
 
 USER node
 

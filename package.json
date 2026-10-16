@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
+    "test:updater": "node --test tests/updater/*.test.mjs",
     "clean": "node scripts/clean.mjs"
   },
   "dependencies": {

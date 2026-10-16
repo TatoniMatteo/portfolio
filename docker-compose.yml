@@ -1,7 +1,8 @@
-# Deploy sul server:   docker compose pull && docker compose up -d
+# Deploy sul server:   docker compose pull && docker compose up -d --no-build
 # Prova in locale:     docker compose up --build        (poi http://localhost:8080)
 #
-# Servono solo questo file e un .env (vedi .env.example). Le immagini vengono
+# Con GitHub App serve anche docker-compose.github-app.yml (vedi .env.example).
+# Le immagini vengono
 # pubblicate su GHCR dalla GitHub Action ad ogni push su main.
 
 services:
@@ -29,8 +30,10 @@ services:
       target: cv-updater
     restart: unless-stopped
     environment:
-      # Senza token il sito parte lo stesso, ma senza CV (il container riprova ogni ora).
+      # PAT oppure GitHub App (vedi docker-compose.github-app.yml).
+      # Senza credenziali il sito parte lo stesso, ma senza CV.
       CV_REPO_TOKEN: ${CV_REPO_TOKEN:-}
+      CV_APP_ID: ${CV_APP_ID:-}
       CV_CHECK_INTERVAL_HOURS: ${CV_CHECK_INTERVAL_HOURS:-24}
     volumes:
       - cv-data:/cv-data

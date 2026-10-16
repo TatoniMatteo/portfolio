@@ -16,10 +16,11 @@
  * Scarica solo se la release è cambiata (tag / id / data degli asset) e
  * sostituisce i file in modo atomico: il sito non serve mai un PDF a metà.
  *
- * Token (in ordine di priorità):
- *   1. CV_REPO_TOKEN  - fine-grained PAT con "Contents: read" sul repo CV
- *   2. GITHUB_TOKEN
- *   3. `gh auth token` (comodo in locale se hai la GitHub CLI loggata)
+ * Autenticazione (in ordine di priorità):
+ *   1. CV_APP_ID + CV_APP_PRIVATE_KEY_FILE - GitHub App, rinnovo automatico
+ *   2. CV_REPO_TOKEN - fine-grained PAT con "Contents: read" sul repo CV
+ *   3. GITHUB_TOKEN
+ *   4. `gh auth token` (comodo in locale se hai la GitHub CLI loggata)
  *
  * Variabili opzionali:
  *   CV_OUT_DIR                 cartella di destinazione (default: public/cv)
@@ -35,7 +36,7 @@
  *   - modalità singola in locale: avvisa e prosegue (npm run dev parte lo stesso);
  *   - --watch: non esce mai, riprova dopo CV_RETRY_MINUTES.
  */
-import {execSync} from 'node:child_process';
+import {createTokenProvider} from './github-auth.mjs';
 import {access, mkdir, readFile, rename, writeFile} from 'node:fs/promises';
 import {dirname, join, resolve} from 'node:path';
 import {setTimeout as sleep} from 'node:timers/promises';
@@ -68,17 +69,11 @@ const META_FILE = join(OUT_DIR, '.cv-meta.json');
 
 const log = (message) => console.log(`[cv] ${message}`);
 
-const getToken = () => {
-    const fromEnv = process.env.CV_REPO_TOKEN || process.env.GITHUB_TOKEN;
-    if (fromEnv) return fromEnv;
-    try {
-        return execSync('gh auth token', {stdio: ['ignore', 'pipe', 'ignore']}).toString().trim() || null;
-    } catch {
-        return null;
-    }
-};
+const getToken = createTokenProvider();
 
-const github = async (url, token, accept) => {
+const github = async (url, accept) => {
+    const token = await getToken();
+    if (!token) throw new Error(`Configura una GitHub App oppure CV_REPO_TOKEN con accesso in lettura a ${REPO}; in locale puoi usare gh auth login.`);
     const response = await fetch(url, {
         headers: {
             Accept: accept,
@@ -86,6 +81,7 @@ const github = async (url, token, accept) => {
             'X-GitHub-Api-Version': '2022-11-28',
             'User-Agent': 'portfolio-fetch-cv',
         },
+        signal: AbortSignal.timeout(30_000),
     });
     if (!response.ok) {
         throw new Error(`${response.status} ${response.statusText} su ${url}`);
@@ -104,16 +100,8 @@ const readMeta = async () => {
 const exists = (file) => access(file).then(() => true, () => false);
 
 const syncOnce = async () => {
-    const token = getToken();
-    if (!token) {
-        throw new Error(
-            'Nessun token trovato. Imposta CV_REPO_TOKEN (PAT con accesso in lettura a ' +
-            `${REPO}) oppure esegui "gh auth login".`,
-        );
-    }
-
     const release = await (
-        await github(`${API}/repos/${REPO}/releases/latest`, token, 'application/vnd.github+json')
+        await github(`${API}/repos/${REPO}/releases/latest`, 'application/vnd.github+json')
     ).json();
 
     const pdfs = (release.assets ?? []).filter((a) => a.name.toLowerCase().endsWith('.pdf'));
@@ -153,7 +141,7 @@ const syncOnce = async () => {
     const downloads = [];
     for (const {code, asset} of matches) {
         // L'URL API dell'asset (non browser_download_url) funziona anche sui repo privati.
-        const response = await github(asset.url, token, 'application/octet-stream');
+        const response = await github(asset.url, 'application/octet-stream');
         const buffer = Buffer.from(await response.arrayBuffer());
         if (buffer.subarray(0, 4).toString('latin1') !== '%PDF') {
             throw new Error(`${asset.name} non sembra un PDF valido, lo scarto.`);
