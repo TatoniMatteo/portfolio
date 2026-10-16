@@ -9,7 +9,7 @@
 # nell'immagine web.
 
 # ---- build del frontend ----
-FROM --platform=$BUILDPLATFORM node:24-alpine AS build
+FROM --platform=$BUILDPLATFORM node:25-alpine AS build
 
 WORKDIR /app
 
@@ -55,7 +55,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
 
 
 # ---- immagine cv-updater ----
-FROM node:24-alpine AS cv-updater
+FROM node:25-alpine AS cv-updater
 
 # Non servono npm, npx, Corepack o Yarn durante l'esecuzione.
 RUN apk upgrade --no-cache \
