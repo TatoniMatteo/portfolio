@@ -1,10 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import HeroDesktop from './HeroDesktop';
-import HeroMobile from './HeroMobile';
+import HeroContent from './HeroContent';
 import profile_img from '../../assets/images/profile.jpeg';
-import { useIsMobile } from '../../hooks/useIsMobile';
 import { useResumeUrl } from '../../hooks/useResumeUrl';
-import './Hero.css';
 
 export type HeroProps = {
     profileImg: string;
@@ -15,7 +12,6 @@ export type HeroProps = {
 };
 
 const Hero = () => {
-    const isMobile = useIsMobile();
     const { t } = useTranslation();
     const resume = useResumeUrl();
 
@@ -27,7 +23,7 @@ const Hero = () => {
         description: t('hero.description'),
     };
 
-    return isMobile ? <HeroMobile {...props} /> : <HeroDesktop {...props} />;
+    return <HeroContent {...props} />;
 };
 
 export default Hero;

@@ -5,9 +5,16 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import en from "./locales/en.json";
 import it from "./locales/it.json";
 
-i18n.on("languageChanged", (lng) => {
-    document.documentElement.lang = lng;
-});
+const updateMetadata = () => {
+    const lang = i18n.resolvedLanguage ?? 'en';
+    document.documentElement.lang = lang;
+    const description = i18n.t('meta.description');
+    for (const selector of ['meta[name="description"]', 'meta[property="og:description"]', 'meta[name="twitter:description"]']) {
+        document.querySelector(selector)?.setAttribute('content', description);
+    }
+    document.querySelector('meta[property="og:locale"]')?.setAttribute('content', lang === 'it' ? 'it_IT' : 'en_US');
+};
+i18n.on("languageChanged", updateMetadata);
 
 void i18n
     .use(LanguageDetector)
@@ -29,7 +36,7 @@ void i18n
         },
     })
     .then(() => {
-        document.documentElement.lang = i18n.resolvedLanguage ?? "en";
+        updateMetadata();
     })
     .catch((cause: unknown) => {
         console.error("Errore durante l'inizializzazione di i18next:", cause);

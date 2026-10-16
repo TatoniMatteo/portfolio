@@ -8,4 +8,19 @@ dist-ssr
 !.env.example
 public/cv
 *.log
-NOTES-DA-CANCELLARE.md
+
+# Playwright artifacts
+test-results/
+playwright-report/
+
+# Development files not needed to build either image
+tests/
+playwright.config.ts
+playwright/.cache/
+playwright/.auth/
+blob-report/
+coverage/
+.idea/
+.codex/
+.vscode/
+*.tsbuildinfo

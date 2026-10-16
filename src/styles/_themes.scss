@@ -1,0 +1,90 @@
+@use 'tokens';
+
+:root {
+    @each $name, $value in tokens.$palette { --color-#{$name}: #{$value}; }
+    @each $name, $value in tokens.$spaces { --space-#{$name}: #{$value}; }
+    @each $name, $value in tokens.$radii { --radius-#{$name}: #{$value}; }
+    @each $name, $value in tokens.$shadows { --shadow-#{$name}: #{$value}; }
+    @each $name, $value in tokens.$breakpoints { --breakpoint-#{$name}: #{$value}; }
+
+    --glass-blur: 18px;
+    --glass-tint: linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 5%, transparent), transparent 45%, color-mix(in srgb, var(--color-accent) 3%, transparent));
+    --glass-border-hover: color-mix(in srgb, var(--color-primary) 35%, var(--glass-border));
+    --font-body: 'Outfit', sans-serif;
+    --layout-content-width: 1200px;
+    --section-spacing: 100px;
+    --section-gap: 35px;
+    --navbar-height: 64px;
+    --navbar-top-spacing: 16px;
+    --hero-top-spacing: 32px;
+    --footer-height: 140px;
+    --portrait-size: 260px;
+    --focus-offset: 4px;
+    --motion-fast: .16s;
+    --motion-normal: .24s;
+    --motion-reveal: .42s;
+    --motion-swap: .18s;
+    --motion-fullscreen: .34s;
+    --motion-ease: cubic-bezier(.22, 1, .36, 1);
+    --layer-navigation: 1100;
+    --layer-progress: 2000;
+
+    --color-scrollbar: color-mix(in srgb, var(--color-text) 22%, transparent);
+    --color-scrollbar-hover: color-mix(in srgb, var(--color-text) 40%, transparent);
+    --color-paper: #fff;
+    --color-logo-monochrome: #fff;
+    --color-selection: #3366ff44;
+    --color-on-accent: #0f172a;
+    --color-selected: color-mix(in srgb, var(--color-primary) 12%, transparent);
+    --color-on-selected: var(--color-primary);
+    --shadow-selected: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 20%, transparent);
+    --color-document-backdrop: color-mix(in srgb, var(--color-border) 55%, var(--color-bg));
+
+    --gradient-text: linear-gradient(267deg, var(--color-primary) 10%, var(--color-accent) 100%);
+    --gradient-action: linear-gradient(267deg, var(--color-primary), var(--color-accent));
+    --gradient-action-hover: linear-gradient(267deg, var(--color-primary-hover), var(--color-accent-hover));
+    --gradient-ambient: linear-gradient(270deg, var(--color-primary), var(--color-accent), var(--color-primary));
+    --gradient-progress: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+}
+
+:root, [data-theme='light'] {
+    color-scheme: light;
+    --color-bg: #f5f1e8;
+    --color-text: #0f172a;
+    --color-primary: var(--color-blue-600);
+    --color-primary-hover: var(--color-blue-700);
+    --color-accent: var(--color-gold-600);
+    --color-accent-hover: var(--color-gold-700);
+    --color-accent-text: #936000;
+    --color-on-primary: #fff;
+    --color-border: #dfd7c8;
+    --color-card: #fffdf8;
+    --glass-surface: rgb(255 253 248 / 86%);
+    --glass-border: rgb(155 139 112 / 30%);
+    --glass-highlight: rgb(255 255 255 / 90%);
+    --glass-shadow: 0 12px 36px rgb(79 65 40 / 7%);
+    --color-disabled: #cbd5e1;
+}
+
+[data-theme='dark'] {
+    color-scheme: dark;
+    --color-bg: #0f172a;
+    --color-text: #f8fafc;
+    --color-primary: var(--color-blue-400);
+    --color-primary-hover: var(--color-blue-300);
+    --color-accent: var(--color-gold-400);
+    --color-accent-hover: var(--color-gold-300);
+    --color-accent-text: var(--color-accent);
+    --color-on-primary: #0f172a;
+    --color-border: #1e293b;
+    --color-card: #1a202c;
+    --glass-surface: rgb(20 31 52 / 72%);
+    --glass-border: rgb(203 213 225 / 12%);
+    --glass-highlight: rgb(255 255 255 / 7%);
+    --glass-shadow: 0 12px 36px rgb(0 0 0 / 12%);
+    --color-disabled: #475569;
+}
+
+@include tokens.down(mobile) {
+    :root { --portrait-size: 180px; }
+}

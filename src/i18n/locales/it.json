@@ -6,32 +6,56 @@
         "resume": "Curriculum",
         "openSource": "Open Source",
         "myProjects": "I Miei Progetti",
-        "contactMe": "Contattami"
+        "contactMe": "Contattami",
+        "menu": "Menu di navigazione",
+        "sectionGuide": "Navigazione tra le sezioni"
     },
     "hero": {
         "greeting": "Sono {{name}}",
         "role": "Software Developer",
-        "description": "Sviluppo soluzioni software affidabili e scalabili che offrono esperienze digitali di impatto.",
+        "description": "Mi occupo di sviluppo software e tecnologie Open Source, con un interesse particolare per la gestione di identità e accessi.",
         "contact": "Contattami",
         "resume": "Il mio CV"
     },
     "about": {
         "title": "Chi Sono",
-        "description": "Sono uno sviluppatore software con esperienza nell'uso di tecnologie Open Source. Lavoro principalmente con Java, Spring Boot, PostgreSQL e sistemi Linux, e integro strumenti come Apache Syncope e Apereo CAS per la gestione di identità e autenticazione. Questo mi ha aiutato a comprendere meglio architetture di sistema complesse e i processi di sviluppo.",
+        "description": "Lavoro in Tirasa, dove sviluppo e personalizzo soluzioni per la gestione di identità e accessi con Java, Spring Boot, Apache Syncope e Apereo CAS. È un percorso iniziato con l’apprendistato, che mi ha permesso di imparare sul campo e confrontarmi con colleghi e clienti anche internazionali.\n\nMi piace capire come funzionano le cose, affrontare problemi concreti e imparare da chi lavora con me. Nei progetti personali esploro anche il frontend con React e TypeScript: questo portfolio è uno degli spazi in cui faccio pratica e sperimento.",
+        "location": "Crema (CR), Italia",
+        "profession": "Software Developer",
+        "skillsLabel": "Tecnologie e strumenti",
+        "groups": {
+            "backend": {
+                "title": "Backend",
+                "context": "Il mio lavoro quotidiano"
+            },
+            "identity": {
+                "title": "Identità e accessi",
+                "context": "Le soluzioni con cui lavoro in Tirasa"
+            },
+            "frontend": {
+                "title": "Frontend",
+                "context": "Studio e progetti personali"
+            },
+            "tools": {
+                "title": "Strumenti di sviluppo",
+                "context": "A supporto del lavoro e dei progetti"
+            },
+            "ai": {
+                "title": "Strumenti AI",
+                "context": "Un supporto per lo studio e lo sviluppo"
+            }
+        },
         "info": {
             "age": "Età",
-            "residence": "Residenza",
-            "residenceValue": "Spoltore, Pescara - Italia",
             "gender": "Genere",
-            "profession": "Professione",
-            "professionValue": "Software Developer"
+            "profession": "Professione"
         }
     },
     "career": {
         "title": "Carriera",
         "events": [
             {
-                "year": "2014 - 2019",
+                "year": "2015 - 2020",
                 "title": "Diploma di Maturità",
                 "subtitle": "Liceo Scientifico G. Galilei (Pescara)",
                 "description": "Diploma di Maturità Scientifica con votazione 83/100.\nStudio di matematica, fisica, chimica, biologia, latino e filosofia."
@@ -65,11 +89,34 @@
     "resume": {
         "title": "Curriculum",
         "loading": "Caricamento PDF...",
-        "error": "CV al momento non disponibile."
+        "error": "CV al momento non disponibile.",
+        "previousPage": "Pagina precedente",
+        "nextPage": "Pagina successiva",
+        "zoomOut": "Riduci zoom",
+        "zoomIn": "Aumenta zoom",
+        "download": "Scarica PDF",
+        "previewHint": "L’anteprima si carica avvicinandosi a questa sezione.",
+        "preview": "Anteprima del curriculum",
+        "pageLabel": "Pagina {{page}} di {{total}}",
+        "openOriginal": "Apri PDF originale",
+        "fullscreen": "Schermo intero",
+        "exitFullscreen": "Esci da schermo intero",
+        "resetZoom": "Reimposta zoom",
+        "fitPage": "Adatta pagina",
+        "fitWidth": "Adatta larghezza",
+        "documentTitle": "Curriculum vitae",
+        "introTitle": "Il mio percorso, in sintesi.",
+        "introDescription": "Esperienze di lavoro, formazione e progetti raccolti nel mio curriculum. Puoi consultarlo qui o scaricare una copia in PDF.",
+        "readingHint": "Per leggere con più spazio, apri l’anteprima a schermo intero.",
+        "languages": {
+            "it": "Italiano",
+            "en": "English"
+        },
+        "languageSelector": "Lingua del CV"
     },
     "openSource": {
         "title": "Open Source",
-        "intro": "Sono <1>committer ufficiale di Apache Syncope</1> presso la Apache Software Foundation, dove contribuisco allo sviluppo di nuove funzionalità, al miglioramento del codice e alla qualità del progetto.",
+        "intro": "Contribuisco ad Apache Syncope con nuove funzionalità, correzioni e miglioramenti al codice. È anche un’occasione per confrontarmi con altri sviluppatori e continuare a imparare.",
         "loading": "Caricamento dei progetti...",
         "error": "Impossibile recuperare le informazioni da GitHub.",
         "noDescription": "Nessuna descrizione disponibile.",
@@ -82,7 +129,11 @@
             "merged": "Unita",
             "open": "Aperta",
             "closed": "Chiusa"
-        }
+        },
+        "fallback": "Consulta i contributi su GitHub",
+        "repositoryLink": "Repository",
+        "allContributions": "I miei contributi",
+        "profileLink": "Profilo GitHub"
     },
     "project": {
         "title": "I Miei Progetti",
@@ -95,17 +146,39 @@
             },
             "portfolio": {
                 "title": "Portfolio Website",
-                "description": "Un sito moderno creato come portfolio e vetrina personale. Presenta i miei progetti, competenze ed esperienza in un layout pulito e organizzato."
+                "description": "Il mio spazio sul web, dove racconto il mio percorso e raccolgo i progetti a cui lavoro. L’ho realizzato con React e TypeScript, con un’interfaccia disponibile in italiano e inglese, animazioni e un’anteprima del curriculum sempre aggiornata."
             }
-        }
+        },
+        "explore": "Esplora i progetti",
+        "thesis": "Progetto di tesi",
+        "personal": "Progetto personale",
+        "repository": "Repository GitHub",
+        "stars": "stelle",
+        "forks": "fork"
     },
     "contact": {
-        "title": "Contattami"
+        "title": "Contattami",
+        "introTitle": "Restiamo in contatto.",
+        "introDescription": "Per parlare di un progetto, scambiare un’idea o farmi una domanda, puoi scrivermi o chiamarmi. Su GitHub trovi il codice e i progetti a cui lavoro.",
+        "githubHint": "Codice, progetti e contributi open source",
+        "otherChannels": "Mi trovi anche qui",
+        "phone": "Telefono"
     },
     "footer": {
-        "rights": "Tutti i diritti riservati."
+        "rights": "Tutti i diritti riservati.",
+        "source": "Codice sorgente",
+        "backToTop": "Torna in alto"
     },
     "languageSwitcher": {
         "label": "Lingua"
+    },
+    "meta": {
+        "description": "Portfolio di Matteo Tatoni, Software Developer specializzato in Java, Spring Boot, PostgreSQL, Apache Syncope e Apereo CAS. Committer Apache Software Foundation."
+    },
+    "themeSwitcher": {
+        "light": "Chiaro",
+        "dark": "Scuro",
+        "system": "Sistema",
+        "action": "Tema: {{current}}. Passa a {{next}}"
     }
 }

@@ -1,9 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import NavbarDesktop from './NavbarDesktop';
 import NavbarMobile from './NavbarMobile';
-import Logo from '../../assets/images/logo.svg?react';
 import { useIsMobile } from '../../hooks/useIsMobile';
-import './Navbar.css';
 import * as React from "react";
 
 // L'id è l'ancora reale della sezione (#about-me, #career, ...) e NON
@@ -18,7 +16,6 @@ export interface NavMenuItem {
 export type NavbarProps = {
     logo: React.ReactNode;
     menuItems: NavMenuItem[];
-    backgroundColor?: string;
 };
 
 const Navbar = () => {
@@ -36,9 +33,11 @@ const Navbar = () => {
     ];
 
     const props: NavbarProps = {
-        logo: <Logo className="logo"/>,
-        menuItems,
-        backgroundColor: 'var(--color-bg)'
+        logo: <a className="brand" href="#home" aria-label="Matteo Tatoni">
+            <img className="brand-image" src={`${import.meta.env.BASE_URL}brand/mt-logo.png`} alt="" decoding="async" width="64" height="42"/>
+            <span className="brand-name">Matteo<br/><strong>Tatoni</strong></span>
+        </a>,
+        menuItems
     };
 
     return isMobile ? (

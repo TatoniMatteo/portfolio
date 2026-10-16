@@ -1,26 +1,44 @@
 version: 2
+# Aggiornamenti ordinari mensili: massimo 4 PR aperte in totale.
+# Le correzioni di sicurezza hanno gruppi e limiti separati.
 updates:
-  # Dipendenze npm (React, Vite, eslint, pdfjs-dist, ...)
+  # Dipendenze npm (React, Vite, Oxlint, pdfjs-dist, ...)
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
+    open-pull-requests-limit: 2
     groups:
-      # Gli aggiornamenti minor/patch non da soli, insieme in una sola PR
-      # settimanale; i major (quelli che possono rompere qualcosa, come è
-      # successo con eslint 9->10 e pdfjs-dist 5->6) restano separati così
-      # si rivedono uno a uno.
+      # Minor e patch confluiscono in un'unica PR mensile.
+      # I major restano separati per verificarli uno alla volta.
       minor-and-patch:
         update-types: [minor, patch]
+      security:
+        applies-to: security-updates
+        patterns: ["*"]
 
   # Le due immagini base nel Dockerfile (node, caddy)
   - package-ecosystem: docker
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
+    open-pull-requests-limit: 1
+    groups:
+      docker:
+        patterns: ["*"]
+      security:
+        applies-to: security-updates
+        patterns: ["*"]
 
   # Le action usate nelle workflow (actions/checkout, docker/build-push-action, ...)
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
+    open-pull-requests-limit: 1
+    groups:
+      github-actions:
+        patterns: ["*"]
+      security:
+        applies-to: security-updates
+        patterns: ["*"]

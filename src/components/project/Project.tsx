@@ -1,16 +1,21 @@
-import './Project.css';
+import SectionTitle from '../section-title/SectionTitle';
+import {githubJSON, isRecord} from '../../lib/github';
 import WaterHealth from '../../assets/images/water-project.png';
 import Portfolio from '../../assets/images/portfolio.png';
 import {useEffect, useState} from 'react';
+import {useMotionTheme} from '../../hooks/useMotionTheme';
 import {motion, AnimatePresence} from 'framer-motion';
 import {useTranslation} from 'react-i18next';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faStar, faCodeBranch} from '@fortawesome/free-solid-svg-icons';
+import {faGithub} from '@fortawesome/free-brands-svg-icons';
+import {faStar, faCodeBranch, faUpRightFromSquare} from '@fortawesome/free-solid-svg-icons';
 
 const GITHUB_USERNAME = 'TatoniMatteo';
 
 interface CuratedProject {
     kind: 'curated';
+    category: string;
+    technologies: string[];
     title: string;
     description: string;
     image: string;
@@ -46,6 +51,7 @@ interface GitHubRepo {
 
 const Project = () => {
     const {t} = useTranslation();
+    const {swap} = useMotionTheme();
     const [selected, setSelected] = useState(0);
     const [extraProjects, setExtraProjects] = useState<RepoProject[]>([]);
     const [loadingExtra, setLoadingExtra] = useState(true);
@@ -56,6 +62,8 @@ const Project = () => {
         {
             kind: 'curated',
             title: t('project.curated.waterHealth.title'),
+            category: t('project.thesis'),
+            technologies: ['Java', 'Spring Boot', 'PostgreSQL', 'Android'],
             description: t('project.curated.waterHealth.description'),
             image: WaterHealth,
             link: 'https://github.com/TatoniMatteo/Water-Project'
@@ -63,6 +71,8 @@ const Project = () => {
         {
             kind: 'curated',
             title: t('project.curated.portfolio.title'),
+            category: t('project.personal'),
+            technologies: ['React', 'TypeScript', 'SASS'],
             description: t('project.curated.portfolio.description'),
             image: Portfolio,
             link: 'https://github.com/TatoniMatteo/portfolio'
@@ -74,11 +84,16 @@ const Project = () => {
 
         const loadRepos = async () => {
             try {
-                const res = await fetch(
-                    `https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=12`
+                const repos = await githubJSON(
+                    `/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=100`,
+                    (value): value is GitHubRepo[] => Array.isArray(value) && value.every((repo: unknown) =>
+                        isRecord(repo) && typeof repo.name === 'string' &&
+                        (repo.description === null || typeof repo.description === 'string') &&
+                        typeof repo.html_url === 'string' && repo.html_url.startsWith('https://github.com/') &&
+                        typeof repo.stargazers_count === 'number' && typeof repo.forks_count === 'number' &&
+                        (repo.language === null || typeof repo.language === 'string') &&
+                        typeof repo.fork === 'boolean' && typeof repo.archived === 'boolean'),
                 );
-                if (!res.ok) throw new Error(`GitHub API ${res.status}`);
-                const repos: GitHubRepo[] = await res.json();
 
                 // Nota limite i18n: la descrizione qui sotto viene presa così
                 // com'è da GitHub (di solito in inglese) e NON viene tradotta
@@ -120,61 +135,54 @@ const Project = () => {
 
     return (
         <div className="section" id="my-projects">
-            <div className="section-title">
-                <h1>{t('project.title')}</h1>
-            </div>
+            <SectionTitle>{t('project.title')}</SectionTitle>
 
             <div className="project-container">
-                <div className="project-list">
-                    {projects.map((p, index) => (
-                        <motion.div
-                            key={p.title + index}
+                <div className="project-list" role="group" aria-label={t('project.explore')}>
+                    <p className="project-list-label">{t('project.explore')}</p>
+                    {projects.map((project, index) => (
+                        <button type="button" aria-label={project.title}
+                            aria-pressed={selected === index} aria-controls="project-preview"
+                            key={`${project.kind}-${project.title}`}
                             className={`project-item ${selected === index ? 'active' : ''}`}
-                            onClick={() => setSelected(index)}
-                            whileHover={{scale: 1.05}}
-                            whileTap={{scale: 0.98}}
-                            transition={{duration: 0.2}}
-                        >
-                            {p.title}
-                        </motion.div>
+                            onClick={() => setSelected(index)}>
+                            {project.kind === 'curated'
+                                ? <img className="project-thumbnail" src={project.image} alt="" loading="lazy"/>
+                                : <span className="project-item-icon"><FontAwesomeIcon icon={faGithub}/></span>}
+                            <span className="project-item-label">
+                                <span>{project.title}</span>
+                                <small>{project.kind === 'curated' ? project.category : t('project.repository')}</small>
+                            </span>
+                        </button>
                     ))}
-                    {loadingExtra && (
-                        <div className="project-item project-item-loading">{t('project.loadingMore')}</div>
-                    )}
+                    {loadingExtra && <p className="project-item-loading" role="status">{t('project.loadingMore')}</p>}
                 </div>
-
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={current.title}
-                        className="project-preview"
-                        initial={{opacity: 0, x: 50}}
-                        animate={{opacity: 1, x: 0}}
-                        exit={{opacity: 0, x: -50}}
-                        transition={{duration: 0.3}}
-                    >
-                        {current.kind === 'curated' ? (
-                            <img src={current.image} alt={current.title}/>
-                        ) : (
-                            <div className="project-repo-meta">
-                                {current.language && <span className="repo-badge">{current.language}</span>}
-                                <span className="repo-badge">
-                                    <FontAwesomeIcon icon={faStar}/> {current.stars}
-                                </span>
-                                <span className="repo-badge">
-                                    <FontAwesomeIcon icon={faCodeBranch}/> {current.forks}
-                                </span>
+                <div className="project-detail-panel">
+                    <AnimatePresence mode="wait" initial={false}>
+                        <motion.div key={`${current.kind}-${current.title}`}
+                            className="project-preview" id="project-preview" aria-live="polite" aria-atomic="true"
+                            {...swap}>
+                            {current.kind === 'curated' ? (
+                                <div className="project-image"><img src={current.image} alt={current.title} loading="lazy" decoding="async"/></div>
+                            ) : (
+                                <div className="project-repo-cover" aria-hidden="true"><FontAwesomeIcon icon={faGithub}/></div>
+                            )}
+                            <div className="project-description">
+                                <span className="project-category">{current.kind === 'curated' ? current.category : t('project.repository')}</span>
+                                <h3>{current.title}</h3>
+                                <p>{current.description}</p>
+                                <div className="project-repo-meta">
+                                    {current.kind === 'curated' ? current.technologies.map((technology) => <span className="repo-badge" key={technology}>{technology}</span>) : <>
+                                        {current.language && <span className="repo-badge">{current.language}</span>}
+                                        <span className="repo-badge"><FontAwesomeIcon icon={faStar}/><span>{current.stars} {t('project.stars')}</span></span>
+                                        <span className="repo-badge"><FontAwesomeIcon icon={faCodeBranch}/><span>{current.forks} {t('project.forks')}</span></span>
+                                    </>}
+                                </div>
+                                {current.link && <a className="project-link" href={current.link} target="_blank" rel="noopener noreferrer">{t('project.viewProject')}<FontAwesomeIcon icon={faUpRightFromSquare}/></a>}
                             </div>
-                        )}
-
-                        <p>{current.description}</p>
-
-                        {current.link && (
-                            <a href={current.link} target="_blank" rel="noopener noreferrer">
-                                {t('project.viewProject')}
-                            </a>
-                        )}
-                    </motion.div>
-                </AnimatePresence>
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
             </div>
         </div>
     );

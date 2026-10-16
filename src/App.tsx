@@ -1,4 +1,4 @@
-import {useEffect} from "react";
+import ScrollEffects from "./components/scroll-effects/ScrollEffects";
 import Navbar from "./components/navbar/Navbar.tsx";
 import Hero from "./components/hero/Hero.tsx";
 import About from "./components/about/About.tsx";
@@ -10,21 +10,19 @@ import Contact from "./components/contact/Contact.tsx";
 import Footer from "./components/footer/Footer.tsx";
 
 const App = () => {
-    useEffect(() => {
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
-    }, []);
-
     return (
         <div>
+            <ScrollEffects/>
             <Navbar/>
-            <Hero/>
-            <About/>
-            <Career/>
-            <Resume/>
-            <OpenSource/>
-            <Project/>
-            <Contact/>
+            <main id="main-content">
+                <Hero/>
+                <About/>
+                <Career/>
+                <Resume/>
+                <OpenSource/>
+                <Project/>
+                <Contact/>
+            </main>
             <Footer/>
         </div>
     );

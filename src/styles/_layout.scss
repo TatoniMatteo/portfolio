@@ -1,0 +1,65 @@
+@use 'tokens';
+
+.section {
+    margin: var(--section-spacing) auto;
+    max-width: var(--layout-content-width);
+    min-height: calc(100svh - 64px);
+    box-sizing: border-box;
+    justify-content: center;
+    scroll-snap-align: center;
+    scroll-snap-stop: normal;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: var(--section-gap);
+    padding: 15px;
+
+    @include tokens.down(mobile) {
+        gap: 10px;
+        min-height: 0;
+    }
+}
+
+#home {
+    margin-top: var(--hero-top-spacing);
+    scroll-snap-align: start;
+    scroll-margin-top: calc(var(--navbar-top-spacing) + var(--navbar-height) + var(--hero-top-spacing));
+}
+
+#contact-me {
+    margin-bottom: 0;
+    min-height: calc(100svh - var(--footer-height));
+    scroll-snap-align: end;
+    scroll-margin-bottom: var(--footer-height);
+}
+
+.section-title {
+    text-align: center;
+    font-size: 30px;
+    margin-bottom: 28px;
+    text-transform: uppercase;
+    h2 { font-size: clamp(2rem, 4vw, 2.5rem); line-height: 1.15; }
+}
+.section-title-line { display: block; height: 3px; width: 72px; margin: 20px auto 0; border-radius: var(--radius-xs); background: var(--gradient-progress); transform-origin: center; }
+.reading-progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; transform-origin: 0 50%; background: var(--gradient-progress); z-index: var(--layer-progress); pointer-events: none; }
+.career-body { width: 100%; }
+
+// Keep the guide in the outer gutter, clear of the content and PDF controls.
+.section-guide { display: none; }
+@media (min-width: 1440px) {
+    .section-guide {
+        position: fixed;
+        right: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        z-index: 100;
+        a { display: flex; align-items: center; justify-content: center; position: relative; width: 32px; height: 32px; border-radius: var(--radius-pill); }
+    }
+    .section-guide-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--color-scrollbar-hover); transition: transform var(--motion-normal) var(--motion-ease), background var(--motion-normal) var(--motion-ease); }
+    .section-guide a[aria-current] .section-guide-dot { background: var(--color-primary); transform: scale(1.6); box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 10%, transparent); }
+    .section-guide-label { position: absolute; right: 36px; white-space: nowrap; background: var(--color-bg); color: var(--color-text); padding: 6px 10px; border: 1px solid var(--glass-border); border-radius: var(--radius-md); font-size: 12px; opacity: 0; transform: translateX(4px); transition: opacity var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease); pointer-events: none; }
+    .section-guide a:hover .section-guide-label, .section-guide a:focus-visible .section-guide-label { opacity: 1; transform: none; }
+}
+footer { scroll-snap-align: end; }

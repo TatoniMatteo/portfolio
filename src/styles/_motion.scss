@@ -1,0 +1,20 @@
+// Hover motion belongs to pointer devices; keyboard focus keeps its outline.
+@media (hover: hover) and (pointer: fine) {
+    .hero-contact:hover, .hero-resume:hover, .resume-download:hover,
+    .project-link:hover, .contact-card:hover { translate: 0 -2px; }
+}
+
+@keyframes hero-orbit-blue { from { transform: rotate(25deg); } to { transform: rotate(385deg); } }
+
+@keyframes hero-orbit-gold { from { transform: rotate(-110deg); } to { transform: rotate(250deg); } }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@keyframes pdf-progress { to { background-position: -200% 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; scroll-snap-type: none; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .hero-contact:hover, .hero-resume:hover, .resume-download:hover,
+    .project-link:hover, .contact-card:hover, .pdf-btn:hover:not(:disabled) { translate: none; transform: none; }
+}

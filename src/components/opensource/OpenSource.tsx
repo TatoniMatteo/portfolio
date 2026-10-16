@@ -1,9 +1,15 @@
+import {openSourceProjects} from '../../data/openSource';
+import type {OpenSourceProject} from '../../data/openSource';
+import SectionTitle from '../section-title/SectionTitle';
 import {useEffect, useState} from 'react';
+import {useMotionTheme} from '../../hooks/useMotionTheme';
 import {motion} from 'framer-motion';
-import {Trans, useTranslation} from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faUpRightFromSquare, faCodePullRequest} from '@fortawesome/free-solid-svg-icons';
 import {faGithub} from '@fortawesome/free-brands-svg-icons';
-import './OpenSource.css';
+import {githubJSON, isRecord, isSearchResponse, pullRequestStatus} from '../../lib/github';
+import type {GitHubSearchItem} from '../../lib/github';
 
 const GITHUB_USERNAME = 'TatoniMatteo';
 
@@ -14,95 +20,37 @@ interface GitHubRepository {
     html_url: string;
 }
 
-interface GitHubPullRequest {
-    number: number;
-    title: string;
-    html_url: string;
-    state: 'open' | 'closed';
-    created_at: string;
-    updated_at: string;
-    merged_at: string | null;
-}
-
-interface GitHubSearchResponse {
-    total_count: number;
-    incomplete_results: boolean;
-    items: GitHubPullRequest[];
-}
-
-interface ProjectConfig {
-    owner: string;
-    repo: string;
-}
-
 interface ProjectData {
     repository: GitHubRepository;
-    pullRequestCount: number;
-    latestPullRequest?: GitHubPullRequest;
+    pullRequestCount?: number;
+    latestPullRequest?: GitHubSearchItem;
 }
 
-const projects: ProjectConfig[] = [
-    {owner: 'apache', repo: 'syncope'},
-];
-
 const getRepository = async (
-    project: ProjectConfig,
+    project: OpenSourceProject,
 ): Promise<GitHubRepository> => {
-    const response = await fetch(
-        `https://api.github.com/repos/${project.owner}/${project.repo}`,
-        {
-            headers: {
-                Accept: 'application/vnd.github+json',
-            },
-        },
-    );
-
-    if (!response.ok) {
-        throw new Error(
-            `Unable to load repository ${project.owner}/${project.repo}`,
-        );
-    }
-
-    return response.json();
+    return githubJSON(`/repos/${project.owner}/${project.repo}`, (value): value is GitHubRepository =>
+        isRecord(value) && typeof value.name === 'string' && typeof value.full_name === 'string' &&
+        (value.description === null || typeof value.description === 'string') &&
+        typeof value.html_url === 'string' && value.html_url.startsWith('https://github.com/'));
 };
 
-const getPullRequests = async (
-    project: ProjectConfig,
-): Promise<GitHubSearchResponse> => {
-    const query = encodeURIComponent(
-        `repo:${project.owner}/${project.repo} type:pr author:${GITHUB_USERNAME}`,
-    );
-
-    const response = await fetch(
-        `https://api.github.com/search/issues?q=${query}&sort=created&order=desc&per_page=1`,
-        {
-            headers: {
-                Accept: 'application/vnd.github+json',
-            },
-        },
-    );
-
-    if (!response.ok) {
-        throw new Error(
-            `Unable to load pull requests for ${project.owner}/${project.repo}`,
-        );
-    }
-
-    return response.json();
-};
-
-const loadProject = async (
-    project: ProjectConfig,
-): Promise<ProjectData> => {
-    const [repository, pullRequests] = await Promise.all([
+const loadProject = async (project: OpenSourceProject): Promise<ProjectData> => {
+    const query = encodeURIComponent(`repo:${project.owner}/${project.repo} type:pr author:${GITHUB_USERNAME}`);
+    const [repoResult, prResult] = await Promise.allSettled([
         getRepository(project),
-        getPullRequests(project),
+        githubJSON(`/search/issues?q=${query}&sort=created&order=desc&per_page=1`, isSearchResponse),
     ]);
-
+    const repository: GitHubRepository = repoResult.status === 'fulfilled' ? repoResult.value : {
+        name: project.repo,
+        full_name: `${project.owner}/${project.repo}`,
+        description: null,
+        html_url: `https://github.com/${project.owner}/${project.repo}`,
+    };
     return {
         repository,
-        pullRequestCount: pullRequests.total_count,
-        latestPullRequest: pullRequests.items[0],
+        pullRequestCount: prResult.status === 'fulfilled' ? prResult.value.total_count : undefined,
+        latestPullRequest: prResult.status === 'fulfilled' ? prResult.value.items[0] : undefined,
     };
 };
 
@@ -114,20 +62,6 @@ const formatDate = (date: string, locale: string): string => {
         month: '2-digit',
         year: 'numeric',
     }).format(new Date(date));
-};
-
-const getPullRequestStatusKey = (
-    pullRequest: GitHubPullRequest,
-): 'merged' | 'open' | 'closed' => {
-    if (pullRequest.merged_at) {
-        return 'merged';
-    }
-
-    if (pullRequest.state === 'open') {
-        return 'open';
-    }
-
-    return 'closed';
 };
 
 interface OpenSourceProjectCardProps {
@@ -145,75 +79,45 @@ const OpenSourceProjectCard = ({
     } = project;
 
     const hasPullRequests =
-        pullRequestCount > 0 && latestPullRequest !== undefined;
+        (pullRequestCount ?? 0) > 0 && latestPullRequest !== undefined;
 
+    const {reveal} = useMotionTheme();
     return (
-        <motion.a
-            href={repository.html_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="contribution-card"
-            initial={{opacity: 0, y: 20}}
-            whileInView={{opacity: 1, y: 0}}
-            viewport={{once: false, amount: 0.4}}
-            whileHover={{scale: 1.02}}
-            transition={{duration: 0.5}}
-        >
+        <motion.article className="contribution-card"
+            {...reveal}>
             <div className="contribution-project">
-                <FontAwesomeIcon
-                    icon={faGithub}
-                    size="lg"
-                />
-
-                <h3>{repository.name}</h3>
-
-                <p>
-                    {repository.description ?? t('openSource.noDescription')}
-                </p>
+                <div className="contribution-repository">
+                    <span className="contribution-icon"><FontAwesomeIcon icon={faGithub}/></span>
+                    <div><span className="contribution-owner">{repository.full_name}</span><h3>{repository.name}</h3></div>
+                </div>
+                <p>{repository.description ?? t('openSource.noDescription')}</p>
             </div>
-
             <div className="contribution-stats">
                 <div className="contribution-count">
-                    <strong>{pullRequestCount}</strong>
-
-                    <span>
-                        {t('openSource.pullRequestCount', {count: pullRequestCount})}
-                    </span>
+                    <strong>{pullRequestCount ?? '–'}</strong>
+                    <span>{pullRequestCount === undefined ? t('openSource.fallback') : t('openSource.pullRequestCount', {count: pullRequestCount})}</span>
                 </div>
-
                 {hasPullRequests ? (
                     <div className="contribution-latest">
-                        <span className="contribution-label">
-                            {t('openSource.latestPr')}
-                        </span>
-
-                        <h4>
-                            #{latestPullRequest.number}{' '}
-                            {latestPullRequest.title}
-                        </h4>
-
-                        <span className="contribution-meta">
-                            {formatDate(
-                                latestPullRequest.created_at,
-                                i18n.language,
-                            )}
-                            {' · '}
-                            {t(`openSource.status.${getPullRequestStatusKey(latestPullRequest)}`)}
-                        </span>
+                        <span className="contribution-label"><FontAwesomeIcon icon={faCodePullRequest}/>{t('openSource.latestPr')}</span>
+                        <h4><a href={`${repository.html_url}/pull/${latestPullRequest.number}`} target="_blank" rel="noopener noreferrer">#{latestPullRequest.number} {latestPullRequest.title}</a></h4>
+                        <div className="contribution-meta">
+                            <time dateTime={latestPullRequest.created_at}>{formatDate(latestPullRequest.created_at, i18n.language)}</time>
+                            <span className="contribution-status">{t(`openSource.status.${pullRequestStatus(latestPullRequest)}`)}</span>
+                        </div>
                     </div>
                 ) : (
                     <div className="contribution-latest">
-                        <span className="contribution-label">
-                            {t('openSource.contributionsLabel')}
-                        </span>
-
-                        <p>
-                            {t('openSource.noContributions')}
-                        </p>
+                        <span className="contribution-label">{t('openSource.contributionsLabel')}</span>
+                        <p>{t(pullRequestCount === undefined ? 'openSource.error' : 'openSource.noContributions')}</p>
                     </div>
                 )}
             </div>
-        </motion.a>
+            <div className="contribution-links">
+                <a className="contribution-repo-link" href={repository.html_url} target="_blank" rel="noopener noreferrer">{t('openSource.repositoryLink')}<FontAwesomeIcon icon={faUpRightFromSquare}/></a>
+                <a href={`${repository.html_url}/pulls?q=${encodeURIComponent(`is:pr author:${GITHUB_USERNAME}`)}`} target="_blank" rel="noopener noreferrer">{t('openSource.allContributions')}<FontAwesomeIcon icon={faUpRightFromSquare}/></a>
+            </div>
+        </motion.article>
     );
 };
 
@@ -231,7 +135,7 @@ const OpenSource = () => {
                 setLoading(true);
                 setError(false);
 
-                const results = await Promise.all(projects.map(loadProject));
+                const results = await Promise.all(openSourceProjects.map(loadProject));
 
                 if (!cancelled) {
                     setContributions(results);
@@ -256,24 +160,15 @@ const OpenSource = () => {
 
     return (
         <div className="section" id="open-source">
-            <div className="section-title">
-                <h1>{t('openSource.title')}</h1>
-            </div>
+            <SectionTitle>{t('openSource.title')}</SectionTitle>
 
-            <motion.p
-                className="open-source-intro"
-                initial={{opacity: 0, y: 20}}
-                whileInView={{opacity: 1, y: 0}}
-                viewport={{once: false, amount: 0.5}}
-                transition={{duration: 0.8}}
-            >
-                <Trans i18nKey="openSource.intro">
-                    I am an <strong className="accent">official committer of Apache Syncope</strong> at
-                    the Apache Software Foundation, where I contribute to new features, code
-                    improvements, and project quality.
-                </Trans>
-            </motion.p>
-
+            <div className={`open-source-layout${openSourceProjects.length > 1 ? ' has-multiple-projects' : ''}`}>
+                <div className="open-source-story">
+                    <span className="open-source-foundation">Apache Software Foundation</span>
+                    <h3>Apache Syncope Committer</h3>
+                    <p className="open-source-intro">{t('openSource.intro')}</p>
+                    <a className="open-source-profile" href={`https://github.com/${GITHUB_USERNAME}`} target="_blank" rel="noopener noreferrer"><FontAwesomeIcon icon={faGithub}/>{t('openSource.profileLink')}<FontAwesomeIcon icon={faUpRightFromSquare}/></a>
+                </div>
             <div className="contribution-grid">
                 {loading && (
                     <div className="contribution-card">
@@ -317,6 +212,7 @@ const OpenSource = () => {
                             project={project}
                         />
                     ))}
+            </div>
             </div>
         </div>
     );

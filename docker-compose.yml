@@ -2,7 +2,7 @@
 # Prova in locale:     docker compose up --build        (poi http://localhost:8080)
 #
 # Servono solo questo file e un .env (vedi .env.example). Le immagini vengono
-# pubblicate su GHCR dalla GitHub Action ad ogni push su master.
+# pubblicate su GHCR dalla GitHub Action ad ogni push su main.
 
 services:
   web:

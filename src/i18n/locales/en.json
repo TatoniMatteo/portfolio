@@ -6,32 +6,56 @@
         "resume": "Resume",
         "openSource": "Open Source",
         "myProjects": "My projects",
-        "contactMe": "Contact Me"
+        "contactMe": "Contact Me",
+        "menu": "Navigation menu",
+        "sectionGuide": "Section navigation"
     },
     "hero": {
         "greeting": "I'm {{name}}",
         "role": "Software Developer",
-        "description": "I build reliable and scalable software solutions that deliver impactful digital experiences.",
+        "description": "I work with software and Open Source technologies, with a particular interest in identity and access management.",
         "contact": "Contact Me",
         "resume": "My resume"
     },
     "about": {
         "title": "About Me",
-        "description": "I am a software developer with experience using Open Source technologies. I mainly work with Java, Spring Boot, PostgreSQL, and Linux systems, and I integrate tools like Apache Syncope and Apereo CAS for identity and authentication management. This has helped me better understand complex system architectures and development processes.",
+        "description": "I work at Tirasa, developing and customising identity and access management solutions with Java, Spring Boot, Apache Syncope and Apereo CAS. I started as an apprentice, learning through hands-on work alongside colleagues and with clients, including international ones.\n\nI enjoy understanding how things work, solving practical problems and learning from the people I work with. In my personal projects, I also explore frontend development with React and TypeScript: this portfolio is one of the places where I practise and experiment.",
+        "location": "Crema (CR), Italy",
+        "profession": "Software Developer",
+        "skillsLabel": "Technologies and tools",
+        "groups": {
+            "backend": {
+                "title": "Backend",
+                "context": "My day-to-day work"
+            },
+            "identity": {
+                "title": "Identity and access",
+                "context": "The solutions I work with at Tirasa"
+            },
+            "frontend": {
+                "title": "Frontend",
+                "context": "Learning and personal projects"
+            },
+            "tools": {
+                "title": "Development tools",
+                "context": "Supporting my work and projects"
+            },
+            "ai": {
+                "title": "AI tools",
+                "context": "Supporting learning and development"
+            }
+        },
         "info": {
             "age": "Age",
-            "residence": "Residence",
-            "residenceValue": "Spoltore, Pescara - Italy",
             "gender": "Gender",
-            "profession": "Profession",
-            "professionValue": "Software Developer"
+            "profession": "Profession"
         }
     },
     "career": {
         "title": "Career",
         "events": [
             {
-                "year": "2014 - 2019",
+                "year": "2015 - 2020",
                 "title": "High School Diploma",
                 "subtitle": "Liceo Scientifico G. Galilei (Pescara)",
                 "description": "High School Diploma with a score of 83/100.\nStudied mathematics, physics, chemistry, biology, Latin, and philosophy."
@@ -65,11 +89,34 @@
     "resume": {
         "title": "Resume",
         "loading": "Loading PDF...",
-        "error": "Resume not available at the moment."
+        "error": "Resume not available at the moment.",
+        "previousPage": "Previous page",
+        "nextPage": "Next page",
+        "zoomOut": "Zoom out",
+        "zoomIn": "Zoom in",
+        "download": "Download PDF",
+        "previewHint": "The preview loads as you approach this section.",
+        "preview": "Resume preview",
+        "pageLabel": "Page {{page}} of {{total}}",
+        "openOriginal": "Open original PDF",
+        "fullscreen": "Fullscreen",
+        "exitFullscreen": "Exit fullscreen",
+        "resetZoom": "Reset zoom",
+        "fitPage": "Fit page",
+        "fitWidth": "Fit width",
+        "documentTitle": "Curriculum vitae",
+        "introTitle": "My journey, at a glance.",
+        "introDescription": "My work experience, education and projects, collected in my resume. Read it here or download a PDF copy.",
+        "readingHint": "For more reading space, open the preview in fullscreen.",
+        "languages": {
+            "it": "Italiano",
+            "en": "English"
+        },
+        "languageSelector": "Resume language"
     },
     "openSource": {
         "title": "Open Source",
-        "intro": "I am an <1>official committer of Apache Syncope</1> at the Apache Software Foundation, where I contribute to new features, code improvements, and project quality.",
+        "intro": "I contribute to Apache Syncope through new features, fixes and code improvements. It is also an opportunity to exchange ideas with other developers and keep learning.",
         "loading": "Loading projects...",
         "error": "Unable to fetch information from GitHub.",
         "noDescription": "No description available.",
@@ -82,7 +129,11 @@
             "merged": "Merged",
             "open": "Open",
             "closed": "Closed"
-        }
+        },
+        "fallback": "View contributions on GitHub",
+        "repositoryLink": "Repository",
+        "allContributions": "My contributions",
+        "profileLink": "GitHub profile"
     },
     "project": {
         "title": "My Projects",
@@ -95,17 +146,39 @@
             },
             "portfolio": {
                 "title": "Portfolio Website",
-                "description": "A modern website created as a personal portfolio and showcase. It presents my projects, skills, and experience in a clean, organized layout."
+                "description": "My space on the web, where I share my journey and the projects I work on. Built with React and TypeScript, it brings together an interface in Italian and English, animations and an always up-to-date resume preview."
             }
-        }
+        },
+        "explore": "Explore projects",
+        "thesis": "Thesis project",
+        "personal": "Personal project",
+        "repository": "GitHub repository",
+        "stars": "stars",
+        "forks": "forks"
     },
     "contact": {
-        "title": "Contact Me"
+        "title": "Contact Me",
+        "introTitle": "Let’s keep in touch.",
+        "introDescription": "To talk about a project, share an idea or ask me a question, send me a message or give me a call. You can find my code and the projects I work on on GitHub.",
+        "githubHint": "Code, projects and open source contributions",
+        "otherChannels": "You can also find me here",
+        "phone": "Phone"
     },
     "footer": {
-        "rights": "All rights reserved."
+        "rights": "All rights reserved.",
+        "source": "Source code",
+        "backToTop": "Back to top"
     },
     "languageSwitcher": {
         "label": "Language"
+    },
+    "meta": {
+        "description": "Matteo Tatoni’s portfolio. Software Developer working with Java, Spring Boot, PostgreSQL, Apache Syncope and Apereo CAS. Apache Software Foundation committer."
+    },
+    "themeSwitcher": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System",
+        "action": "Theme: {{current}}. Switch to {{next}}"
     }
 }

@@ -1,8 +1,8 @@
-import {useState} from "react";
-import {AnimatePresence, motion} from "framer-motion";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import type {IconDefinition} from "@fortawesome/fontawesome-svg-core";
-import "./Timeline.css";
+import {useId, useLayoutEffect, useRef, useState} from 'react';
+import {useMotionTheme} from '../../hooks/useMotionTheme';
+import {AnimatePresence, motion} from 'framer-motion';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import type {IconDefinition} from '@fortawesome/fontawesome-svg-core';
 
 export interface TimelineEvent {
     year: string;
@@ -12,80 +12,77 @@ export interface TimelineEvent {
     icon: IconDefinition;
 }
 
-interface TimelineProps {
-    events: TimelineEvent[];
-}
+interface TimelineProps { events: TimelineEvent[]; }
 
-const Timeline = ({ events }: TimelineProps) => {
+const Timeline = ({events}: TimelineProps) => {
+    const detailId = useId();
+    const {swap} = useMotionTheme();
+    const wrapperRef = useRef<HTMLDivElement>(null);
+    const listRef = useRef<HTMLOListElement>(null);
+    const cardRef = useRef<HTMLDivElement>(null);
     const [selected, setSelected] = useState(() => Math.max(0, events.length - 1));
     const selectedIndex = Math.min(selected, Math.max(0, events.length - 1));
     const selectedEvent = events[selectedIndex];
 
+    useLayoutEffect(() => {
+        const card = cardRef.current;
+        const list = listRef.current;
+        const wrapper = wrapperRef.current;
+        if (!card || !list || !wrapper) return () => undefined;
+        const syncHeight = () => {
+            wrapper.style.setProperty('--timeline-card-height', `${card.getBoundingClientRect().height}px`);
+            const active = list.querySelectorAll<HTMLButtonElement>('button')[selectedIndex];
+            if (!active) return;
+            const item = active.getBoundingClientRect();
+            const bounds = list.getBoundingClientRect();
+            if (item.top < bounds.top) list.scrollTop += item.top - bounds.top;
+            else if (item.bottom > bounds.bottom) list.scrollTop += item.bottom - bounds.bottom;
+        };
+        syncHeight();
+        const observer = new ResizeObserver(syncHeight);
+        observer.observe(card);
+        return () => observer.disconnect();
+    }, [selectedIndex]);
+
     return (
-        <div className="timeline-wrapper">
-            <div className="timeline-container">
-                <motion.div
-                    className="timeline-line"
-                    initial={{ scaleX: 0, opacity: 0 }}
-                    whileInView={{ opacity: 1, scaleX: 1 }}
-                    viewport={{ once: false, amount: 0.3 }}
-                    transition={{ type: "spring", stiffness: 80, damping: 20 }}
-                />
-
+        <div className="timeline-wrapper" ref={wrapperRef}>
+            <div className="timeline-navigation">
+            <ol className="timeline-container" ref={listRef}>
                 {events.map((event, index) => (
-                    <motion.div
-                        key={`${event.year}-${event.title}-${index}`}
-                        className="timeline-event"
-                        onClick={() => setSelected(index)}
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        viewport={{ once: false, amount: 0.3 }}
-                        transition={{ type: "spring", stiffness: 80, damping: 20 }}
-                    >
-                        <div className={`timeline-icon ${selectedIndex === index ? "active" : ""}`}>
-                            <FontAwesomeIcon icon={event.icon} size="lg" />
-                        </div>
-
-                        <div className="timeline-year">{event.year}</div>
-                    </motion.div>
+                    <li key={`${event.year}-${event.title}-${index}`}>
+                        <button type="button" className="timeline-event"
+                            aria-label={`${event.year}: ${event.title}`}
+                            aria-pressed={selectedIndex === index} aria-controls={detailId}
+                            onClick={() => setSelected(index)}>
+                            <span className="timeline-icon"><FontAwesomeIcon icon={event.icon}/></span>
+                            <span className="timeline-event-label">
+                                <span className="timeline-year">{event.year}</span>
+                                <span className="timeline-event-title">{event.title}</span>
+                            </span>
+                        </button>
+                    </li>
                 ))}
+            </ol>
             </div>
-
-            <motion.div
-                className="timeline-detail-container"
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: false, amount: 0.3 }}
-                transition={{ duration: 0.8 }}
-            >
-                <AnimatePresence mode="wait">
+            <div ref={cardRef} className="timeline-detail-card" id={detailId} aria-live="polite" aria-atomic="true">
+                <AnimatePresence mode="wait" initial={false}>
                     {selectedEvent && (
-                        <motion.div
-                            key={`${selectedEvent.year}-${selectedIndex}`}
-                            className="timeline-detail-card"
-                            initial={{opacity: 0, y: 20, scale: 0.95}}
-                            animate={{opacity: 1, y: 0, scale: 1}}
-                            exit={{opacity: 0, y: -20, scale: 0.95}}
-                            transition={{duration: 0.5}}
-                        >
-                            <h2>{selectedEvent.title}</h2>
-                            <h4>{selectedEvent.subtitle}</h4>
-                            <h5>({selectedEvent.year})</h5>
-
-                            <p>
-                                {selectedEvent.description.split("\n").map((line, index) => (
-                                    <span key={index}>
-                                        {line}
-                                        <br/>
-                                    </span>
-                                ))}
-                            </p>
+                        <motion.div key={selectedIndex} className="timeline-detail-content"
+                            {...swap}>
+                            <div className="timeline-detail-meta">
+                                <span className="timeline-detail-icon"><FontAwesomeIcon icon={selectedEvent.icon}/></span>
+                                <span>{selectedEvent.year}</span>
+                            </div>
+                            <h3>{selectedEvent.title}</h3>
+                            <p className="timeline-subtitle">{selectedEvent.subtitle}</p>
+                            <div className="timeline-description">
+                                {selectedEvent.description.split('\n').map((line, index) => <p key={index}>{line}</p>)}
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
-            </motion.div>
+            </div>
         </div>
     );
 };
-
 export default Timeline;

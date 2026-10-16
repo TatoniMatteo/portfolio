@@ -1,8 +1,8 @@
+import SectionTitle from '../section-title/SectionTitle';
 import {useTranslation} from "react-i18next";
 import {faAward, faBriefcase, faGraduationCap, faLaptopCode} from "@fortawesome/free-solid-svg-icons";
 import type {TimelineEvent} from "../timeline/Timeline";
 import Timeline from "../timeline/Timeline";
-import "./Career.css";
 
 const icons = [
     faGraduationCap,
@@ -46,9 +46,7 @@ const Career = () => {
 
     return (
         <div className="section" id="career">
-            <div className="section-title">
-                <h1>{t("career.title")}</h1>
-            </div>
+            <SectionTitle>{t("career.title")}</SectionTitle>
 
             <div className="career-body">
                 <Timeline events={events}/>

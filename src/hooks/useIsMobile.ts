@@ -1,33 +1,16 @@
-import { useEffect, useState } from 'react';
+import {useCallback, useSyncExternalStore} from 'react';
 
-/**
- * Ritorna true se la viewport è <= breakpoint (default 768px).
- * Il resize è debounced per evitare re-render eccessivi durante il drag
- * della finestra o su dispositivi che sparano molti eventi 'resize'.
- */
-export const useIsMobile = (breakpoint = 768) => {
-    const [isMobile, setIsMobile] = useState(
-        () => typeof window !== 'undefined' && window.innerWidth <= breakpoint
-    );
-
-    useEffect(() => {
-        let timeoutId: number | undefined;
-
-        const handleResize = () => {
-            if (timeoutId) window.clearTimeout(timeoutId);
-            timeoutId = window.setTimeout(() => {
-                setIsMobile(window.innerWidth <= breakpoint);
-            }, 150);
-        };
-
-        window.addEventListener('resize', handleResize);
-        return () => {
-            window.removeEventListener('resize', handleResize);
-            if (timeoutId) window.clearTimeout(timeoutId);
-        };
-    }, [breakpoint]);
-
-    return isMobile;
+/** Subscribe only to breakpoint changes, without delaying the responsive layout. */
+export const useIsMobile = () => {
+    const breakpoint = typeof window === 'undefined'
+        ? '768px'
+        : getComputedStyle(document.documentElement).getPropertyValue('--breakpoint-mobile').trim() || '768px';
+    const query = `(max-width: ${breakpoint})`;
+    const subscribe = useCallback((onChange: () => void) => {
+        const media = window.matchMedia(query);
+        media.addEventListener('change', onChange);
+        return () => media.removeEventListener('change', onChange);
+    }, [query]);
+    const getSnapshot = useCallback(() => window.matchMedia(query).matches, [query]);
+    return useSyncExternalStore(subscribe, getSnapshot, () => false);
 };
-
-export default useIsMobile;
