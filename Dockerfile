@@ -18,7 +18,11 @@ RUN apk upgrade --no-cache
 COPY package.json package-lock.json ./
 RUN npm ci
 
-COPY . .
+# Solo gli input del frontend: gli script del CV e i file di deploy
+# non devono invalidare la cache di questa build.
+COPY index.html tsconfig*.json vite.config.ts ./
+COPY src ./src
+COPY public ./public
 RUN npm run build
 
 

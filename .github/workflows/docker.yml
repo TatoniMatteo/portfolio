@@ -15,8 +15,8 @@ concurrency:
 
 jobs:
   scan:
-    name: Build e scansione - ${{ matrix.target }}
-    runs-on: ubuntu-latest
+    name: Build e scansione - ${{ matrix.target }} / ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
 
     strategy:
       fail-fast: false
@@ -24,42 +24,86 @@ jobs:
         include:
           - target: web
             image: portfolio
+            arch: amd64
+            runner: ubuntu-24.04
+          - target: web
+            image: portfolio
+            arch: arm64
+            runner: ubuntu-24.04-arm
           - target: cv-updater
             image: portfolio-cv-updater
+            arch: amd64
+            runner: ubuntu-24.04
+          - target: cv-updater
+            image: portfolio-cv-updater
+            arch: arm64
+            runner: ubuntu-24.04-arm
 
     steps:
       - uses: actions/checkout@v7
 
+      - name: Nome immagine
+        id: name
+        env:
+          IMAGE_NAME: ${{ matrix.image }}
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/$IMAGE_NAME" >> "$GITHUB_OUTPUT"
+
       - uses: docker/setup-buildx-action@v4
 
-      # Build locale: l'immagine viene caricata nel Docker daemon
-      # del runner per poter essere analizzata da Trivy.
+      - name: Metadati immagine
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ steps.name.outputs.image }}
+          tags: type=sha,prefix=sha-
+
+      # Ogni architettura viene compilata sul proprio runner nativo, senza QEMU.
+      # La stessa immagine viene analizzata e poi caricata su GHCR, senza rebuild.
       - name: Build immagine
         uses: docker/build-push-action@v7
         with:
           context: .
           target: ${{ matrix.target }}
-          platforms: linux/amd64
+          platforms: linux/${{ matrix.arch }}
           load: true
-          tags: scan/${{ matrix.image }}:${{ github.sha }}
+          tags: ${{ steps.name.outputs.image }}:sha-${{ github.sha }}-${{ matrix.arch }}
+          labels: ${{ steps.meta.outputs.labels }}
+          provenance: false
           cache-from: |
+            type=gha,scope=native-${{ matrix.target }}-${{ matrix.arch }}
             type=gha,scope=scan-${{ matrix.target }}
             type=gha,scope=publish-${{ matrix.target }}
-          cache-to: type=gha,mode=max,scope=scan-${{ matrix.target }}
+          cache-to: type=gha,mode=max,scope=native-${{ matrix.target }}-${{ matrix.arch }}
 
       - name: Scansione vulnerabilità (Trivy)
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: scan/${{ matrix.image }}:${{ github.sha }}
+          image-ref: ${{ steps.name.outputs.image }}:sha-${{ github.sha }}-${{ matrix.arch }}
           format: table
           scanners: vuln
           severity: CRITICAL,HIGH
           ignore-unfixed: true
           exit-code: '1'
 
+      - name: Login a GHCR
+        if: github.ref == 'refs/heads/main'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Tag intermedi del commit: latest/data/sha breve attendono TUTTE le scansioni.
+      - name: Caricamento variante verificata
+        if: github.ref == 'refs/heads/main'
+        env:
+          IMAGE: ${{ steps.name.outputs.image }}
+          ARCH: ${{ matrix.arch }}
+        run: docker push "$IMAGE:sha-$GITHUB_SHA-$ARCH"
+
   publish:
     name: Pubblicazione - ${{ matrix.target }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: scan
 
     if: github.ref == 'refs/heads/main' && needs.scan.result == 'success'
@@ -74,15 +118,12 @@ jobs:
             image: portfolio-cv-updater
 
     steps:
-      - uses: actions/checkout@v7
-
       - name: Nome immagine
         id: name
-        shell: bash
-        run: |
-          echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${{ matrix.image }}" >> "$GITHUB_OUTPUT"
+        env:
+          IMAGE_NAME: ${{ matrix.image }}
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/$IMAGE_NAME" >> "$GITHUB_OUTPUT"
 
-      - uses: docker/setup-qemu-action@v4
       - uses: docker/setup-buildx-action@v4
 
       - name: Metadati immagine
@@ -102,17 +143,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build e pubblicazione multiarch
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          target: ${{ matrix.target }}
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          provenance: false
-          cache-from: |
-            type=gha,scope=scan-${{ matrix.target }}
-            type=gha,scope=publish-${{ matrix.target }}
-          cache-to: type=gha,mode=max,scope=publish-${{ matrix.target }}
+      # Assembla solo il manifest delle immagini già compilate e analizzate.
+      - name: Pubblicazione manifest multiarch
+        env:
+          IMAGE: ${{ steps.name.outputs.image }}
+          TAGS: ${{ steps.meta.outputs.tags }}
+        shell: bash
+        run: |
+          tag_args=()
+          while IFS= read -r tag; do
+            if [[ -n "$tag" ]]; then
+              tag_args+=(--tag "$tag")
+            fi
+          done <<< "$TAGS"
+          docker buildx imagetools create "${tag_args[@]}" \
+            "$IMAGE:sha-$GITHUB_SHA-amd64" \
+            "$IMAGE:sha-$GITHUB_SHA-arm64"

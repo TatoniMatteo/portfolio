@@ -4,6 +4,13 @@ Il sito gira come due immagini Docker (`web` e `cv-updater`), costruite e
 pubblicate su GitHub Container Registry a ogni push su `main`. Questa guida
 copre il setup iniziale e le operazioni di tutti i giorni.
 
+La Action compila `web` e `cv-updater` in parallelo per AMD64 e ARM64,
+su runner nativi (senza emulazione QEMU), con cache separate per immagine
+e architettura. Ogni variante viene compilata una sola volta, analizzata
+da Trivy e caricata su GHCR con il tag intermedio `sha-<commit completo>-<arch>`.
+Solo quando tutte le scansioni e i caricamenti riescono vengono assemblati
+i manifest multiarch `latest`, data e `sha-<commit breve>`, senza ricompilare.
+
 ## Setup iniziale (una tantum)
 
 1. **GitHub App per il CV (consigliata, senza rinnovi manuali dei token).**
