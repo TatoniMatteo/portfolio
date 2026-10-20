@@ -104,7 +104,7 @@ test('the updater downloads private release assets with an App token and persist
         if (req.url === '/repos/owner/CV/installation') return json({id: 123});
         if (req.url === '/app/installations/123/access_tokens') return json({token: 'test-installation-token', expires_at: new Date(Date.now() + 3_600_000).toISOString()});
         if (req.headers.authorization !== 'Bearer test-installation-token') { res.writeHead(401); return res.end(); }
-        if (req.url === '/repos/owner/CV/releases/latest') return json({tag_name: 'v1', assets: ['it', 'en'].map((lang, index) => ({id: index + 1, name: `CV-${lang}.pdf`, url: `${api}/assets/${lang}`}))});
+        if (req.url === '/repos/owner/CV/releases/latest') return json({tag_name: 'v1', assets: ['it', 'en'].map((lang, index) => ({id: index + 1, name: `CV-Matteo-Tatoni-${lang.toUpperCase()}.pdf`, url: `${api}/assets/${lang}`}))});
         if (req.url?.startsWith('/assets/')) return res.end(`%PDF-1.7\n${req.url}`);
         res.writeHead(404); return res.end();
     });

@@ -104,11 +104,18 @@ al vecchio file. Il volume dei PDF viene conservato.
 
 ## Nomi dei PDF riconosciuti
 
-`fetch-cv.mjs` individua la lingua dal nome dell'asset nella release: deve
-contenere `IT`/`ITA`/`italiano` oppure `EN`/`ENG`/`english` (separati da
-`-`, `_`, `.` o spazio) — es. `CV-Matteo-Tatoni-IT.pdf`. Se i tuoi file
-hanno nomi diversi, imposta `CV_IT_PATTERN` / `CV_EN_PATTERN` come variabili
-d'ambiente del servizio `cv-updater` in `docker-compose.yml`.
+`fetch-cv.mjs` cerca i nomi esatti degli asset nella release. I valori predefiniti sono:
+
+- `CV-Matteo-Tatoni-IT.pdf`
+- `CV-Matteo-Tatoni-EN.pdf`
+
+Per modificarli, imposta `CV_IT_FILENAME` e `CV_EN_FILENAME` nel `.env`
+di Docker Compose o nell'ambiente dello script in locale. Il confronto è
+1:1, incluse maiuscole, minuscole ed estensione; non sono regex.
+Le versioni ATS sono sempre escluse, anche se configurate esplicitamente.
+Se manca uno dei due file, il controllo fallisce e conserva i PDF già presenti.
+Al primo controllo con lo script aggiornato, eventuali PDF ATS già scaricati
+vengono sostituiti dalle versioni standard anche se la release è la stessa.
 
 ## Troubleshooting
 

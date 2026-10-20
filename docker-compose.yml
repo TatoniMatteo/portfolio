@@ -35,6 +35,8 @@ services:
       CV_REPO_TOKEN: ${CV_REPO_TOKEN:-}
       CV_APP_ID: ${CV_APP_ID:-}
       CV_CHECK_INTERVAL_HOURS: ${CV_CHECK_INTERVAL_HOURS:-24}
+      CV_IT_FILENAME: ${CV_IT_FILENAME:-CV-Matteo-Tatoni-IT.pdf}
+      CV_EN_FILENAME: ${CV_EN_FILENAME:-CV-Matteo-Tatoni-EN.pdf}
     volumes:
       - cv-data:/cv-data
     security_opt:

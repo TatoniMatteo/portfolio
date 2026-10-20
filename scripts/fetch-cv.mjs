@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Scarica i PDF del CV (italiano + inglese) dall'ULTIMA release del repo
- * privato e li salva come:
+ * privato, escludendo sempre le versioni ATS, e li salva come:
  *
  *   <CV_OUT_DIR>/cv-it.pdf
  *   <CV_OUT_DIR>/cv-en.pdf
@@ -25,8 +25,8 @@
  * Variabili opzionali:
  *   CV_OUT_DIR                 cartella di destinazione (default: public/cv)
  *   CV_REPO                    repo sorgente            (default: TatoniMatteo/CV)
- *   CV_IT_PATTERN              regex nome asset italiano (default: it|ita|italiano|italian)
- *   CV_EN_PATTERN              regex nome asset inglese  (default: en|eng|english|inglese)
+ *   CV_IT_FILENAME             nome esatto asset italiano (default: CV-Matteo-Tatoni-IT.pdf)
+ *   CV_EN_FILENAME             nome esatto asset inglese  (default: CV-Matteo-Tatoni-EN.pdf)
  *   CV_CHECK_INTERVAL_HOURS    solo --watch, default 24
  *   CV_RETRY_MINUTES           solo --watch, attesa dopo un errore, default 60
  *   GITHUB_API_URL             base API                 (default: https://api.github.com)
@@ -54,12 +54,9 @@ const positiveNumber = (value, fallback) => {
 const INTERVAL_MS = positiveNumber(process.env.CV_CHECK_INTERVAL_HOURS, 24) * 3_600_000;
 const RETRY_MS = positiveNumber(process.env.CV_RETRY_MINUTES, 60) * 60_000;
 
-const toRegex = (value, fallback) =>
-    new RegExp(`(^|[^a-z])(${value ?? fallback})([^a-z]|$)`, 'i');
-
 const LANGUAGES = [
-    {code: 'it', pattern: toRegex(process.env.CV_IT_PATTERN, 'it|ita|italiano|italian')},
-    {code: 'en', pattern: toRegex(process.env.CV_EN_PATTERN, 'en|eng|english|inglese')},
+    {code: 'it', filename: process.env.CV_IT_FILENAME || 'CV-Matteo-Tatoni-IT.pdf'},
+    {code: 'en', filename: process.env.CV_EN_FILENAME || 'CV-Matteo-Tatoni-EN.pdf'},
 ];
 
 const OUT_DIR = process.env.CV_OUT_DIR
@@ -105,17 +102,18 @@ const syncOnce = async () => {
     ).json();
 
     const pdfs = (release.assets ?? []).filter((a) => a.name.toLowerCase().endsWith('.pdf'));
-    const matches = LANGUAGES.map(({code, pattern}) => ({
+    const eligiblePdfs = pdfs.filter((a) => !/(^|[^a-z0-9])ats([^a-z0-9]|$)/i.test(a.name));
+    const matches = LANGUAGES.map(({code, filename}) => ({
         code,
-        asset: pdfs.find((a) => pattern.test(a.name)),
+        filename,
+        asset: eligiblePdfs.find((a) => a.name === filename),
     }));
 
-    const missing = matches.filter((m) => !m.asset).map((m) => m.code);
+    const missing = matches.filter((m) => !m.asset).map((m) => m.filename);
     if (missing.length > 0) {
         throw new Error(
-            `Release ${release.tag_name}: nessun PDF riconosciuto per: ${missing.join(', ')}. Asset trovati: ` +
-            `${pdfs.map((a) => a.name).join(', ') || '(nessuno)'}. ` +
-            'Adatta CV_IT_PATTERN / CV_EN_PATTERN ai nomi dei file.',
+            `Release ${release.tag_name}: PDF mancanti: ${missing.join(', ')}. Asset trovati: ` +
+            `${pdfs.map((a) => a.name).join(', ') || '(nessuno)'}.`,
         );
     }
 
