@@ -1,8 +1,7 @@
 import {test, expect} from '@playwright/test';
 import {mockFonts, mockGitHub} from './fixtures';
 
-// Supply a repository list through Vite's module request, only in this test.
-// No example contributions are added to the actual portfolio configuration.
+// Supply discovered repositories through the GitHub API, without a fixed list.
 for (const count of [2, 3]) {
     for (const width of [390, 1440]) {
         test(`${count} Open Source projects form a responsive grid at ${width}px`, async ({page}) => {
@@ -17,15 +16,24 @@ for (const count of [2, 3]) {
                 {owner: 'example', repo: 'another-project'},
                 {owner: 'example', repo: 'a-project-with-a-longer-repository-name'},
             ].slice(0, count);
-            await page.route('**/src/data/openSource.ts*', (route) => route.fulfill({
-                contentType: 'application/javascript',
-                body: `export const openSourceProjects = ${JSON.stringify(projects)};`,
-            }));
+            await page.route('https://api.github.com/search/**', (route) => {
+                const query = new URL(route.request().url()).searchParams.get('q')!;
+                if (query.includes('repo:')) return route.fallback();
+                return route.fulfill({json: {
+                    total_count: projects.length, incomplete_results: false,
+                    items: projects.map(({owner, repo}) => ({
+                        repository_url: `https://api.github.com/repos/${owner}/${repo}`,
+                        number: 42, title: 'A contribution', state: 'open',
+                        created_at: '2026-01-01T12:00:00Z', pull_request: {},
+                    })),
+                }});
+            });
             await page.route('https://api.github.com/repos/**', (route) => {
                 const fullName = new URL(route.request().url()).pathname.slice('/repos/'.length);
                 return route.fulfill({json: {
                     name: fullName.split('/')[1], full_name: fullName,
                     description: 'Example repository for layout review.', html_url: `https://github.com/${fullName}`,
+                    private: false, license: {key: 'mit'},
                 }});
             });
             await page.goto('/');

@@ -23,7 +23,7 @@ const Footer = () => {
             <div className="footer-content">
                 <div className="footer-main">
                     <a className="footer-brand" href="#home" aria-label="Matteo Tatoni — Home">
-                        <img src={`${import.meta.env.BASE_URL}brand/mt-logo.png`} alt="" width="64" height="42" loading="lazy"/>
+                        <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width="42" height="42" loading="lazy"/>
                         <span><strong>Matteo Tatoni</strong><span>Software Developer</span></span>
                     </a>
                     <div className="footer-links">

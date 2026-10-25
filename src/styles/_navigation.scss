@@ -4,7 +4,7 @@
 }
 
 .brand { display: inline-flex; align-items: center; gap: 8px; color: var(--color-text); }
-.brand-image { display: block; width: 64px; height: 42px; object-fit: contain; border-radius: var(--radius-control); background: transparent; }
+.brand-image { display: block; width: 42px; height: 42px; object-fit: contain; border-radius: var(--radius-control); background: transparent; }
 .brand-name { font-size: 13px; line-height: 1.2; letter-spacing: .02em; }
 .brand-name strong { color: var(--color-primary); font-weight: 700; }
 

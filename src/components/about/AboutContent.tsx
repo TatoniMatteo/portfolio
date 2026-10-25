@@ -1,7 +1,7 @@
 import SectionTitle from '../section-title/SectionTitle';
 import {useMotionTheme} from '../../hooks/useMotionTheme';
 import {motion} from 'framer-motion';
-import {useTranslation} from 'react-i18next';
+import {Trans, useTranslation} from 'react-i18next';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faLocationDot} from '@fortawesome/free-solid-svg-icons';
 import type {SkillGroup} from './About';
@@ -22,20 +22,22 @@ const AboutContent = ({groups, title, paragraphs, location, profession, name, ag
     return (
         <section className="section about" id="about-me" aria-labelledby="about-heading">
             <div id="about-heading"><SectionTitle>{title}</SectionTitle></div>
+            <motion.div className="about-profile" {...reveal}>
+                <div className="about-identity">
+                    <h3>{name}</h3>
+                    <p className="about-location"><FontAwesomeIcon icon={faLocationDot}/>{location}</p>
+                </div>
+                <dl className="about-meta">
+                    <div><dt>{t('about.info.age')}</dt><dd>{age}</dd></div>
+                    <div><dt>{t('about.info.gender')}</dt><dd>M</dd></div>
+                    <div><dt>{t('about.info.profession')}</dt><dd>{profession}</dd></div>
+                </dl>
+            </motion.div>
             <div className="about-sections">
                 <motion.div className="about-story"
                     {...reveal}>
-                    <div className="about-profile">
-                        <h3>{name}</h3>
-                        <p className="about-location"><FontAwesomeIcon icon={faLocationDot}/>{location}</p>
-                        <dl className="about-meta">
-                            <div><dt>{t('about.info.age')}</dt><dd>{age}</dd></div>
-                            <div><dt>{t('about.info.gender')}</dt><dd>M</dd></div>
-                            <div><dt>{t('about.info.profession')}</dt><dd>{profession}</dd></div>
-                        </dl>
-                    </div>
                     <div className="about-prose">
-                        {paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                        {paragraphs.map((paragraph) => <p key={paragraph}><Trans defaults={paragraph} components={{strong: <strong/>}}/></p>)}
                     </div>
                 </motion.div>
                 <div className="about-skills" aria-label={t('about.skillsLabel')}>

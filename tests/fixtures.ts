@@ -2,10 +2,6 @@ import {readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import type {Page} from '@playwright/test';
 
-const repository = {
-    name: 'syncope', full_name: 'apache/syncope',
-    description: 'Identity management', html_url: 'https://github.com/apache/syncope',
-};
 const mergedPR = {
     number: 42, title: 'Improve identity management', state: 'closed',
     created_at: '2026-01-01T12:00:00Z', pull_request: {merged_at: '2026-01-02T12:00:00Z'},
@@ -13,9 +9,20 @@ const mergedPR = {
 
 export async function mockGitHub(page: Page) {
     await page.route('https://api.github.com/**', async (route) => {
-        const path = new URL(route.request().url()).pathname;
+        const url = new URL(route.request().url());
+        const path = url.pathname;
+        const fullName = path.slice('/repos/'.length);
+        const repository = {
+            name: fullName.split('/')[1], full_name: fullName,
+            description: 'Identity management', html_url: `https://github.com/${fullName}`,
+            private: false, license: {key: 'apache-2.0'},
+        };
         const json = path.includes('/search/')
-            ? {total_count: 7, incomplete_results: false, items: [mergedPR]}
+            ? url.searchParams.get('q')?.includes('repo:')
+                ? {total_count: 7, incomplete_results: false, items: [mergedPR]}
+                : {total_count: 4, incomplete_results: false, items:
+                    ['apache/syncope', 'Tirasa/ConnIdAzureBundle', 'Tirasa/ConnIdADBundle', 'Tirasa/ConnIdLDAPBundle']
+                        .map((repoName) => ({...mergedPR, repository_url: `https://api.github.com/repos/${repoName}`}))}
             : path.includes('/users/') ? [] : repository;
         await route.fulfill({json});
     });

@@ -1,15 +1,15 @@
-import {openSourceProjects} from '../../data/openSource';
-import type {OpenSourceProject} from '../../data/openSource';
 import SectionTitle from '../section-title/SectionTitle';
 import {useEffect, useState} from 'react';
 import {useMotionTheme} from '../../hooks/useMotionTheme';
 import {motion} from 'framer-motion';
 import {useTranslation} from 'react-i18next';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faUpRightFromSquare, faCodePullRequest} from '@fortawesome/free-solid-svg-icons';
+import {faUpRightFromSquare, faCodePullRequest, faStar} from '@fortawesome/free-solid-svg-icons';
 import {faGithub} from '@fortawesome/free-brands-svg-icons';
 import {githubJSON, isRecord, isSearchResponse, pullRequestStatus} from '../../lib/github';
 import type {GitHubSearchItem} from '../../lib/github';
+import {discoverOpenSourceProjects} from '../../lib/openSourceDiscovery';
+import type {OpenSourceProject} from '../../lib/openSourceDiscovery';
 
 const GITHUB_USERNAME = 'TatoniMatteo';
 
@@ -18,6 +18,8 @@ interface GitHubRepository {
     full_name: string;
     description: string | null;
     html_url: string;
+    private: boolean;
+    license: {key: string} | null;
 }
 
 interface ProjectData {
@@ -26,13 +28,20 @@ interface ProjectData {
     latestPullRequest?: GitHubSearchItem;
 }
 
+const compareContributions = (a: ProjectData, b: ProjectData): number =>
+    (b.pullRequestCount ?? -1) - (a.pullRequestCount ?? -1) ||
+    (b.latestPullRequest ? Date.parse(b.latestPullRequest.created_at) : 0) -
+    (a.latestPullRequest ? Date.parse(a.latestPullRequest.created_at) : 0);
+
 const getRepository = async (
     project: OpenSourceProject,
 ): Promise<GitHubRepository> => {
     return githubJSON(`/repos/${project.owner}/${project.repo}`, (value): value is GitHubRepository =>
         isRecord(value) && typeof value.name === 'string' && typeof value.full_name === 'string' &&
         (value.description === null || typeof value.description === 'string') &&
-        typeof value.html_url === 'string' && value.html_url.startsWith('https://github.com/'));
+        typeof value.html_url === 'string' && value.html_url.startsWith('https://github.com/') &&
+        typeof value.private === 'boolean' &&
+        (value.license === null || (isRecord(value.license) && typeof value.license.key === 'string')));
 };
 
 const loadProject = async (project: OpenSourceProject): Promise<ProjectData> => {
@@ -41,12 +50,8 @@ const loadProject = async (project: OpenSourceProject): Promise<ProjectData> => 
         getRepository(project),
         githubJSON(`/search/issues?q=${query}&sort=created&order=desc&per_page=1`, isSearchResponse),
     ]);
-    const repository: GitHubRepository = repoResult.status === 'fulfilled' ? repoResult.value : {
-        name: project.repo,
-        full_name: `${project.owner}/${project.repo}`,
-        description: null,
-        html_url: `https://github.com/${project.owner}/${project.repo}`,
-    };
+    if (repoResult.status === 'rejected') throw repoResult.reason;
+    const repository = repoResult.value;
     return {
         repository,
         pullRequestCount: prResult.status === 'fulfilled' ? prResult.value.total_count : undefined,
@@ -66,10 +71,12 @@ const formatDate = (date: string, locale: string): string => {
 
 interface OpenSourceProjectCardProps {
     project: ProjectData;
+    featured: boolean;
 }
 
 const OpenSourceProjectCard = ({
     project,
+    featured,
 }: OpenSourceProjectCardProps) => {
     const {t, i18n} = useTranslation();
     const {
@@ -83,7 +90,7 @@ const OpenSourceProjectCard = ({
 
     const {reveal} = useMotionTheme();
     return (
-        <motion.article className="contribution-card"
+        <motion.article className={`contribution-card${featured ? ' contribution-card-featured' : ''}`}
             {...reveal}>
             <div className="contribution-project">
                 <div className="contribution-repository">
@@ -96,11 +103,12 @@ const OpenSourceProjectCard = ({
                 <div className="contribution-count">
                     <strong>{pullRequestCount ?? '–'}</strong>
                     <span>{pullRequestCount === undefined ? t('openSource.fallback') : t('openSource.pullRequestCount', {count: pullRequestCount})}</span>
+                    {featured && <span className="contribution-featured-label"><FontAwesomeIcon icon={faStar}/>{t('openSource.mostContributions')}</span>}
                 </div>
                 {hasPullRequests ? (
                     <div className="contribution-latest">
                         <span className="contribution-label"><FontAwesomeIcon icon={faCodePullRequest}/>{t('openSource.latestPr')}</span>
-                        <h4><a href={`${repository.html_url}/pull/${latestPullRequest.number}`} target="_blank" rel="noopener noreferrer">#{latestPullRequest.number} {latestPullRequest.title}</a></h4>
+                        <h4><a href={`${repository.html_url}/pull/${latestPullRequest.number}`} title={latestPullRequest.title} target="_blank" rel="noopener noreferrer">#{latestPullRequest.number} {latestPullRequest.title}</a></h4>
                         <div className="contribution-meta">
                             <time dateTime={latestPullRequest.created_at}>{formatDate(latestPullRequest.created_at, i18n.language)}</time>
                             <span className="contribution-status">{t(`openSource.status.${pullRequestStatus(latestPullRequest)}`)}</span>
@@ -126,6 +134,7 @@ const OpenSource = () => {
     const [contributions, setContributions] = useState<ProjectData[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+    const [complete, setComplete] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -135,10 +144,15 @@ const OpenSource = () => {
                 setLoading(true);
                 setError(false);
 
-                const results = await Promise.all(openSourceProjects.map(loadProject));
+                const projects = await discoverOpenSourceProjects(GITHUB_USERNAME);
+                const results = await Promise.allSettled(projects.map(loadProject));
+                const successful = results.flatMap((result) => result.status === 'fulfilled' ? [result.value] : []);
+                if (projects.length > 0 && successful.length === 0) throw new Error('Unable to load repository metadata');
+                const eligible = successful.filter(({repository}) => !repository.private && repository.license != null);
 
                 if (!cancelled) {
-                    setContributions(results);
+                    setContributions(eligible.sort(compareContributions));
+                    setComplete(results.every((result) => result.status === 'fulfilled'));
                 }
             } catch (err) {
                 if (!cancelled) {
@@ -158,14 +172,15 @@ const OpenSource = () => {
         };
     }, []);
 
+    const canHighlight = complete && contributions.every((project) => project.pullRequestCount !== undefined) &&
+        (contributions[0]?.pullRequestCount ?? 0) > 0;
+
     return (
         <div className="section" id="open-source">
             <SectionTitle>{t('openSource.title')}</SectionTitle>
 
-            <div className={`open-source-layout${openSourceProjects.length > 1 ? ' has-multiple-projects' : ''}`}>
+            <div className={`open-source-layout${contributions.length > 1 ? ' has-multiple-projects' : ''}`}>
                 <div className="open-source-story">
-                    <span className="open-source-foundation">Apache Software Foundation</span>
-                    <h3>Apache Syncope Committer</h3>
                     <p className="open-source-intro">{t('openSource.intro')}</p>
                     <a className="open-source-profile" href={`https://github.com/${GITHUB_USERNAME}`} target="_blank" rel="noopener noreferrer"><FontAwesomeIcon icon={faGithub}/>{t('openSource.profileLink')}<FontAwesomeIcon icon={faUpRightFromSquare}/></a>
                 </div>
@@ -205,11 +220,17 @@ const OpenSource = () => {
                 )}
 
                 {!loading &&
+                    !error && contributions.length === 0 && (
+                        <p role="status">{t('openSource.noProjects')}</p>
+                    )}
+
+                {!loading &&
                     !error &&
-                    contributions.map((project) => (
+                    contributions.map((project, index) => (
                         <OpenSourceProjectCard
                             key={project.repository.full_name}
                             project={project}
+                            featured={canHighlight && index === 0}
                         />
                     ))}
             </div>

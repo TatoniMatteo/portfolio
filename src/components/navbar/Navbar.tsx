@@ -34,7 +34,7 @@ const Navbar = () => {
 
     const props: NavbarProps = {
         logo: <a className="brand" href="#home" aria-label="Matteo Tatoni">
-            <img className="brand-image" src={`${import.meta.env.BASE_URL}brand/mt-logo.png`} alt="" decoding="async" width="64" height="42"/>
+            <img className="brand-image" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" decoding="async" width="42" height="42"/>
             <span className="brand-name">Matteo<br/><strong>Tatoni</strong></span>
         </a>,
         menuItems

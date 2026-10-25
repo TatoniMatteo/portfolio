@@ -12,16 +12,16 @@
     },
     "hero": {
         "greeting": "Sono {{name}}",
-        "role": "Software Developer",
-        "description": "Mi occupo di sviluppo software e tecnologie Open Source, con un interesse particolare per la gestione di identità e accessi.",
+        "role": "Full Stack Software Developer",
+        "description": "Sono uno sviluppatore full stack, con più esperienza sul backend e una passione particolare per il frontend. Programmare mi piace anche fuori dal lavoro.",
         "contact": "Contattami",
         "resume": "Il mio CV"
     },
     "about": {
         "title": "Chi Sono",
-        "description": "Lavoro in Tirasa, dove sviluppo e personalizzo soluzioni per la gestione di identità e accessi con Java, Spring Boot, Apache Syncope e Apereo CAS. È un percorso iniziato con l’apprendistato, che mi ha permesso di imparare sul campo e confrontarmi con colleghi e clienti anche internazionali.\n\nMi piace capire come funzionano le cose, affrontare problemi concreti e imparare da chi lavora con me. Nei progetti personali esploro anche il frontend con React e TypeScript: questo portfolio è uno degli spazi in cui faccio pratica e sperimento.",
+        "description": "Lavoro in <strong>Tirasa</strong> da circa tre anni, dove sviluppo e personalizzo soluzioni per la gestione di identità e accessi con Java, Spring Boot, Apache Syncope e Apereo CAS. Mi occupo di adattarle alle esigenze dei clienti. Sono inoltre <strong>Apache Syncope Committer</strong> e contribuisco allo sviluppo del progetto.\n\nIl <strong>backend</strong> è l’ambito in cui ho più esperienza, ma il <strong>frontend</strong> è quello che mi appassiona di più. La programmazione mi accompagna anche nel tempo libero: mi piace dedicarmi a <strong>progetti personali</strong> e provare tecnologie che uso meno al lavoro. Questo portfolio, sviluppato con React e TypeScript, è uno dei progetti con cui coltivo questa passione.\n\nAccanto alla programmazione c’è il piacere di stare all’aria aperta e <strong>vivere la natura</strong>. Sono <strong>Scout</strong> da quando ero piccolo: lo scoutismo è una parte della mia vita che mi accompagna fin dall’infanzia. Anche lo sport ha avuto il suo spazio: ho giocato a <strong>pallacanestro</strong> per tanti anni, e il basket è una parte del mio percorso che mi fa piacere raccontare insieme al lavoro e agli altri interessi.",
         "location": "Crema (CR), Italia",
-        "profession": "Software Developer",
+        "profession": "Full Stack Software Developer",
         "skillsLabel": "Tecnologie e strumenti",
         "groups": {
             "backend": {
@@ -116,14 +116,16 @@
     },
     "openSource": {
         "title": "Open Source",
-        "intro": "Contribuisco ad Apache Syncope con nuove funzionalità, correzioni e miglioramenti al codice. È anche un’occasione per confrontarmi con altri sviluppatori e continuare a imparare.",
+        "intro": "Lavoro con tecnologie open source e contribuisco al loro sviluppo con nuove funzionalità, correzioni di bug e miglioramenti al codice. È un modo per partecipare ai progetti che uso, confrontarmi con altri sviluppatori e imparare sul campo.",
         "loading": "Caricamento dei progetti...",
         "error": "Impossibile recuperare le informazioni da GitHub.",
         "noDescription": "Nessuna descrizione disponibile.",
+        "noProjects": "Non risultano contributi pubblici a progetti open source.",
         "pullRequestCount_one": "Pull Request",
         "pullRequestCount_other": "Pull Request",
         "latestPr": "Ultima PR",
         "contributionsLabel": "Contributi",
+        "mostContributions": "Più contributi",
         "noContributions": "Nessuna Pull Request effettuata su questo progetto.",
         "status": {
             "merged": "Unita",
