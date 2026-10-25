@@ -4,6 +4,7 @@ import {rm} from 'node:fs/promises';
 const directories = [
     'dist', 'dist-ssr', 'test-results', 'playwright-report', 'blob-report', 'coverage',
     'node_modules/.tmp', 'node_modules/.vite', 'node_modules/.vite-temp',
+    'playwright/.cache',
 ];
 
 await Promise.all(directories.map((directory) =>

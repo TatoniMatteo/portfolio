@@ -30,7 +30,7 @@ RUN npm run build
 FROM caddy:2.11.7-builder-alpine AS caddy-build
 
 # Usa una versione Go aggiornata per includere le correzioni di sicurezza.
-ENV GOTOOLCHAIN=go1.27.2
+ENV GOTOOLCHAIN=go1.27.3
 
 # Aggiorna x/net senza registrarlo come plugin Caddy.
 # --with non è adatto: x/net non è un plugin importabile da xcaddy.

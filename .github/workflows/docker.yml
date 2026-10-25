@@ -17,6 +17,8 @@ jobs:
   scan:
     name: Build e scansione - ${{ matrix.target }} / ${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
 
     strategy:
       fail-fast: false
@@ -58,7 +60,7 @@ jobs:
           tags: type=sha,prefix=sha-
 
       # Ogni architettura viene compilata sul proprio runner nativo, senza QEMU.
-      # La stessa immagine viene analizzata e poi caricata su GHCR, senza rebuild.
+      # La stessa immagine viene analizzata e conservata come artifact, senza rebuild.
       - name: Build immagine
         uses: docker/build-push-action@v7
         with:
@@ -85,26 +87,41 @@ jobs:
           ignore-unfixed: true
           exit-code: '1'
 
-      - name: Login a GHCR
-        if: github.ref == 'refs/heads/main'
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # Tag intermedi del commit: latest/data/sha breve attendono TUTTE le scansioni.
-      - name: Caricamento variante verificata
+      # Nessuna immagine viene inviata a GHCR durante i controlli.
+      - name: Esportazione variante verificata
         if: github.ref == 'refs/heads/main'
         env:
           IMAGE: ${{ steps.name.outputs.image }}
           ARCH: ${{ matrix.arch }}
-        run: docker push "$IMAGE:sha-$GITHUB_SHA-$ARCH"
+        run: docker save --output "$RUNNER_TEMP/image-$ARCH.tar" "$IMAGE:sha-$GITHUB_SHA-$ARCH"
+
+      - name: Conservazione variante verificata
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-${{ matrix.target }}-${{ matrix.arch }}
+          path: ${{ runner.temp }}/image-${{ matrix.arch }}.tar
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 1
+          overwrite: true
+
+  release:
+    name: Data di rilascio
+    runs-on: ubuntu-24.04
+    needs: scan
+    if: github.ref == 'refs/heads/main' && needs.scan.result == 'success'
+    outputs:
+      tag: ${{ steps.date.outputs.tag }}
+    steps:
+      - name: Generazione tag UTC comune alle immagini
+        id: date
+        run: echo "tag=$(date -u +'%Y%m%d')" >> "$GITHUB_OUTPUT"
 
   publish:
     name: Pubblicazione - ${{ matrix.target }}
     runs-on: ubuntu-24.04
-    needs: scan
+    needs: [scan, release]
 
     if: github.ref == 'refs/heads/main' && needs.scan.result == 'success'
 
@@ -133,7 +150,7 @@ jobs:
           images: ${{ steps.name.outputs.image }}
           tags: |
             type=raw,value=latest
-            type=raw,value={{date 'YYYYMMDD'}}
+            type=raw,value=${{ needs.release.outputs.tag }}
             type=sha,prefix=sha-
 
       - name: Login a GHCR
@@ -142,6 +159,26 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Questo job parte solo dopo il successo di TUTTE le build e scansioni.
+      - name: Recupero varianti verificate
+        uses: actions/download-artifact@v5
+        with:
+          pattern: image-${{ matrix.target }}-*
+          path: ${{ runner.temp }}/images
+          merge-multiple: true
+
+      - name: Caricamento varianti verificate su GHCR
+        env:
+          IMAGE: ${{ steps.name.outputs.image }}
+        shell: bash
+        run: |
+          for arch in amd64 arm64; do
+            docker load --input "$RUNNER_TEMP/images/image-$arch.tar"
+          done
+          for arch in amd64 arm64; do
+            docker push "$IMAGE:sha-$GITHUB_SHA-$arch"
+          done
 
       # Assembla solo il manifest delle immagini già compilate e analizzate.
       - name: Pubblicazione manifest multiarch
