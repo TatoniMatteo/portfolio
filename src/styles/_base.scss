@@ -18,6 +18,7 @@ body {
 }
 
 a { color: var(--color-text); text-decoration: none; }
+#root { isolation: isolate; }
 button { font: inherit; }
 :focus-visible { outline: 3px solid var(--color-primary); outline-offset: var(--focus-offset); }
 .accent { fill: var(--color-accent); color: var(--color-accent-text); }

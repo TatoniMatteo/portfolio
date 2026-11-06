@@ -1,5 +1,23 @@
 @use 'tokens';
 
+.portfolio-atmosphere {
+    position: fixed;
+    inset: 0;
+    overflow: clip;
+    z-index: -1;
+    pointer-events: none;
+    mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, #000 35%, transparent 100%);
+
+    span { position: absolute; width: min(65vw, 560px); aspect-ratio: 1; border-radius: 50%; opacity: .18; filter: blur(65px); background: var(--color-primary); animation: atmosphere-drift 18s ease-in-out infinite alternate; }
+    span:nth-child(1) { left: 4%; top: 5%; animation-delay: -6s; }
+    span:nth-child(2) { right: 0; top: 35%; background: var(--color-accent); animation-duration: 23s; animation-delay: -14s; animation-direction: alternate-reverse; }
+    span:nth-child(3) { left: 20%; bottom: 5%; width: 240px; opacity: .12; animation-duration: 15s; animation-delay: -4s; }
+
+    @include tokens.down(mobile) {
+        span { filter: blur(45px); opacity: .14; }
+    }
+}
+
 .section {
     margin: var(--section-spacing) auto;
     max-width: var(--layout-content-width);

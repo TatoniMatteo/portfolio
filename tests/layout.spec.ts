@@ -104,7 +104,7 @@ for (const theme of ['light', 'dark'] as const) {
         await page.addInitScript(() => localStorage.setItem('portfolio-lang', 'en'));
         await page.goto('/');
         await page.evaluate(() => document.fonts.ready);
-        const atmosphere = page.locator('.hero-atmosphere');
+        const atmosphere = page.locator('.portfolio-atmosphere');
         const bounds = (await atmosphere.boundingBox())!;
         expect(Math.abs(bounds.x)).toBeLessThan(1);
         expect(bounds.width).toBe(2560);

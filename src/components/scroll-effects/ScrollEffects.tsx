@@ -1,6 +1,7 @@
 import {useEffect, useRef, useState} from 'react';
-import {motion, useScroll, useSpring} from 'framer-motion';
+import {motion, useScroll, useSpring, useTransform} from 'framer-motion';
 import {useMotionTheme} from '../../hooks/useMotionTheme';
+import {useIsMobile} from '../../hooks/useIsMobile';
 import {useTranslation} from 'react-i18next';
 
 const sections = [
@@ -20,6 +21,11 @@ const ScrollEffects = () => {
     const keyboardTarget = useRef<HTMLElement | null>(null);
     const {scrollYProgress} = useScroll();
     const progress = useSpring(scrollYProgress, {stiffness: 240, damping: 34});
+    const isMobile = useIsMobile();
+    const depth = reduced ? 0 : isMobile ? 0.35 : 1;
+    const blueY = useTransform(scrollYProgress, [0, 1], [0, 180 * depth]);
+    const goldY = useTransform(scrollYProgress, [0, 1], [0, -140 * depth]);
+    const glowX = useTransform(scrollYProgress, [0, 1], [0, 220 * depth]);
 
     useEffect(() => {
         const observer = new IntersectionObserver((entries) => {
@@ -86,6 +92,11 @@ const ScrollEffects = () => {
     }, [reduced]);
 
     return <>
+        <div className="portfolio-atmosphere" aria-hidden="true">
+            <motion.span style={{y: blueY}}/>
+            <motion.span style={{y: goldY}}/>
+            <motion.span style={{x: glowX}}/>
+        </div>
         {!reduced && <motion.div className="reading-progress" aria-hidden="true" style={{scaleX: progress}}/>}
         <nav className="section-guide" aria-label={t('nav.sectionGuide')}>
             {sections.map(({id, label}) => (

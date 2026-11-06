@@ -13,7 +13,7 @@ const App = () => {
     return (
         <div>
             <ScrollEffects/>
-            <Navbar/>
+            <header className="site-header"><Navbar/></header>
             <main id="main-content">
                 <Hero/>
                 <About/>

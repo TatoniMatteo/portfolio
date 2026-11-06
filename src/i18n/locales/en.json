@@ -11,9 +11,17 @@
         "sectionGuide": "Section navigation"
     },
     "hero": {
-        "greeting": "I'm {{name}}",
+        "introLabel": "A quick introduction",
+        "secondEyebrow": "A little about what I do",
+        "secondTitle": "Backend is my home.",
+        "secondAccent": "Frontend is my playground.",
+        "secondDescription": "I work with Java and digital identities. Then I open React and bring my own ideas to life. That’s how this site started, too.",
+        "backendNote": "Where I feel at home.",
+        "frontendNote": "Where I experiment.",
+        "scrollHint": "Get to know me",
+        "greeting": "Hi, I’m {{name}}.",
         "role": "Full Stack Software Developer",
-        "description": "I’m a full stack developer with more experience in backend development and a particular passion for frontend. I enjoy programming outside of work too.",
+        "description": "I like building things that work. And feel good to use. Want to take a look?",
         "contact": "Contact Me",
         "resume": "My resume"
     },

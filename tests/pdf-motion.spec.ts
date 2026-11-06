@@ -108,7 +108,7 @@ test.describe('high density mobile screen', () => {
 
 test('reduced motion disables decorative loops and keeps content immediately readable', async ({page}) => {
     await page.goto('/');
-    await expect(page.locator('.hero-atmosphere span').first()).toHaveCSS('animation-name', 'none');
+    await expect(page.locator('.portfolio-atmosphere span').first()).toHaveCSS('animation-name', 'none');
     await expect(page.locator('.hero-portrait')).toHaveCSS('transform', 'none');
     await expect(page.locator('#home h1')).toHaveCSS('filter', 'none');
     await expect(page.locator('.reading-progress')).toHaveCount(0);
@@ -129,6 +129,45 @@ test('pointer tilt, orbital animation and scroll progress respond with motion en
     await page.locator('#my-projects').scrollIntoViewIfNeeded();
     await expect.poll(() => page.locator('.reading-progress').evaluate((element) => new DOMMatrix(getComputedStyle(element).transform).a)).toBeGreaterThan(0.1);
 });
+
+for (const width of [390, 1440]) {
+    test(`page background follows scrolling and respects reduced motion at ${width}px`, async ({page}) => {
+        await page.emulateMedia({reducedMotion: 'no-preference'});
+        await page.setViewportSize({width, height: 1000});
+        await page.goto('/');
+        await expect(page.locator('.hero-action')).toHaveCSS('opacity', '1');
+        const lights = page.locator('.portfolio-atmosphere span');
+        const offsets = () => lights.evaluateAll((elements) => elements.map(
+            (element, index) => {
+                const matrix = new DOMMatrix(getComputedStyle(element).transform);
+                return index === 2 ? matrix.m41 : matrix.m42;
+            },
+        ));
+        await page.evaluate(() => {
+            document.documentElement.style.scrollSnapType = 'none';
+            window.scrollTo({top: 300, behavior: 'instant'});
+        });
+        await expect.poll(async () => (await offsets())[0]).toBeGreaterThan(0);
+        const [blue, gold, glow] = await offsets();
+        expect(gold).toBeLessThan(0);
+        expect(glow).toBeGreaterThan(0);
+        expect(glow).toBeGreaterThan(blue);
+        expect(blue).toBeLessThanOrEqual(width === 390 ? 63 : 180);
+        const atmosphere = page.locator('.portfolio-atmosphere');
+        const initialBounds = await atmosphere.boundingBox();
+        await page.locator('#contact-me').scrollIntoViewIfNeeded();
+        await expect(page.locator('#home')).not.toBeInViewport();
+        await expect(atmosphere).toHaveCSS('position', 'fixed');
+        expect(await atmosphere.boundingBox()).toEqual(initialBounds);
+        await expect.poll(async () => (await offsets())[0]).toBeGreaterThan(blue);
+        expect(await lights.first().evaluate((element) => {
+            const bounds = element.getBoundingClientRect();
+            return bounds.bottom > 0 && bounds.top < innerHeight;
+        })).toBe(true);
+        await page.emulateMedia({reducedMotion: 'reduce'});
+        await expect.poll(offsets).toEqual([0, 0, 0]);
+    });
+}
 
 for (const width of [390, 1440]) {
     test(`animated fullscreen returns to Resume at ${width}px`, async ({page}, testInfo) => {
@@ -167,7 +206,10 @@ test('motion stays subtle, pauses offscreen and responds to reduced motion chang
     const orbit = page.locator('.portrait-orbit-gold');
     await expect(orbit).toHaveCSS('animation-duration', '48s');
     await expect(orbit).toHaveCSS('animation-play-state', 'running');
-    await expect(page.locator('.hero-atmosphere span').first()).toHaveCSS('animation-name', 'none');
+    const light = page.locator('.portfolio-atmosphere span').first();
+    await expect(light).toHaveCSS('animation-name', 'atmosphere-drift');
+    const initialPosition = await light.evaluate((element) => getComputedStyle(element).translate);
+    await expect.poll(() => light.evaluate((element) => getComputedStyle(element).translate)).not.toBe(initialPosition);
     await expect(page.locator('.hero-greeting')).toHaveCSS('animation-name', 'none');
     await page.locator('#contact-me').scrollIntoViewIfNeeded();
     await expect(orbit).toHaveCSS('animation-play-state', 'paused');
@@ -179,6 +221,8 @@ test('motion stays subtle, pauses offscreen and responds to reduced motion chang
     await page.emulateMedia({reducedMotion: 'reduce'});
     await expect(contact).toHaveCSS('translate', 'none');
     await expect(orbit).toHaveCSS('animation-name', 'none');
+    await expect(light).toHaveCSS('animation-name', 'none');
+    await expect(light).toHaveCSS('translate', 'none');
     await expect(page.locator('.reading-progress')).toHaveCount(0);
     await expect(page.locator('footer')).toHaveCSS('animation-name', 'none');
 });

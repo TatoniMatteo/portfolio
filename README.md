@@ -25,7 +25,17 @@ Requires **Node.js 24** and **npm**.
 
 ```bash
 npm ci
-npm run dev
+npm run dev -- --port 0
+```
+
+`--port 0` lets the operating system select an available port. Open the local URL
+printed by Vite in the terminal; the port can change on each start.
+
+To preview a production build with an automatically selected port:
+
+```bash
+npm run build
+npm run preview -- --port 0
 ```
 
 Styles use a single [SASS theme](src/styles/main.scss), with tokens in
@@ -38,7 +48,7 @@ CV downloads support a GitHub App with automatic token renewal, a PAT or GitHub 
 | Command           | Description                                 |
 |:------------------|:--------------------------------------------|
 | `npm run build`   | Production build in `dist/`                 |
-| `npm run preview` | Preview the production build                |
+| `npm run preview -- --port 0` | Preview the production build on an available port |
 | `npm run lint`    | Type-aware linting with Oxlint              |
 | `npm run clean`   | Remove generated builds, reports and caches |
 

@@ -8,6 +8,19 @@
 
 @keyframes hero-orbit-gold { from { transform: rotate(-110deg); } to { transform: rotate(250deg); } }
 
+@keyframes portrait-code-spark {
+    0% { opacity: 0; transform: translate3d(calc(var(--spark-x) * -.35), calc(var(--spark-y) * -.35), 0) rotate(calc(var(--spark-angle) * -.4)) scale(.9); }
+    18%, 65% { opacity: .85; }
+    90% { opacity: 0; }
+    100% { opacity: 0; transform: translate3d(var(--spark-x), var(--spark-y), 0) rotate(var(--spark-angle)) scale(1); }
+}
+
+// Individual translate composes with the scroll-driven transform.
+@keyframes atmosphere-drift {
+    from { translate: -8% 6%; }
+    to { translate: 12% -10%; }
+}
+
 @keyframes spin { to { transform: rotate(360deg); } }
 
 @keyframes pdf-progress { to { background-position: -200% 0; } }

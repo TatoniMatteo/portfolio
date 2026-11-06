@@ -11,9 +11,17 @@
         "sectionGuide": "Navigazione tra le sezioni"
     },
     "hero": {
-        "greeting": "Sono {{name}}",
+        "introLabel": "Mi presento",
+        "secondEyebrow": "Due parole su quello che faccio",
+        "secondTitle": "Parto dal backend.",
+        "secondAccent": "Mi diverto col frontend.",
+        "secondDescription": "Lavoro con Java e con le identità digitali. Poi apro React e do forma alle mie idee. Anche questo sito è nato così.",
+        "backendNote": "Qui mi sento a casa.",
+        "frontendNote": "Qui sperimento.",
+        "scrollHint": "Scopri qualcosa di me",
+        "greeting": "Ciao, sono {{name}}.",
         "role": "Full Stack Software Developer",
-        "description": "Sono uno sviluppatore full stack, con più esperienza sul backend e una passione particolare per il frontend. Programmare mi piace anche fuori dal lavoro.",
+        "description": "Mi piace costruire cose che funzionano. E che siano anche belle da usare. Ti faccio vedere?",
         "contact": "Contattami",
         "resume": "Il mio CV"
     },
