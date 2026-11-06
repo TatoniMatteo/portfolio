@@ -36,6 +36,7 @@ ENV GOTOOLCHAIN=go1.27.3
 # --with non è adatto: x/net non è un plugin importabile da xcaddy.
 RUN xcaddy build v2.11.7 \
     --replace golang.org/x/net=golang.org/x/net@v0.61.0 \
+    --replace github.com/go-jose/go-jose/v4=github.com/go-jose/go-jose/v4@v4.1.6 \
     --output /usr/bin/caddy
 
 
