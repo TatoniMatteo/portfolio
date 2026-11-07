@@ -15,8 +15,6 @@ const fixture = async (t, {missingCaddy = false, ignoreTerm = ''} = {}) => {
         const filename = service === 'web' ? 'caddy' : 'fetch-cv.mjs';
         await writeFile(join(directory, filename), `#!${process.execPath}
 import {existsSync} from 'node:fs';
-console.log('${service}-started');
-console.log('${service}-credential:' + (process.env.CV_REPO_TOKEN ?? 'none'));
 for (const signal of ['SIGTERM', 'SIGINT']) process.on(signal, () => {
     if (signal === 'SIGTERM' && process.env.FIXTURE_IGNORE_TERM === '${service}') return;
     console.log('${service}-stopped');
@@ -25,6 +23,8 @@ for (const signal of ['SIGTERM', 'SIGINT']) process.on(signal, () => {
 setInterval(() => {
     if (existsSync(new URL('./crash-${service}', import.meta.url))) process.exit(${service === 'web' ? 42 : 43});
 }, 10);
+console.log('${service}-credential:' + (process.env.CV_REPO_TOKEN ?? 'none'));
+console.log('${service}-started');
 `, {mode: 0o755});
     }
     if (missingCaddy) await rm(join(directory, 'caddy'));
