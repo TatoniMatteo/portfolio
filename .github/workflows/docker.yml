@@ -1,4 +1,4 @@
-name: Docker images
+name: Docker image
 
 on:
   push:
@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 concurrency:
   group: docker-${{ github.ref }}
@@ -15,7 +14,7 @@ concurrency:
 
 jobs:
   scan:
-    name: Build e scansione - ${{ matrix.target }} / ${{ matrix.arch }}
+    name: Build e scansione - ${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
@@ -24,21 +23,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - target: web
-            image: portfolio
-            arch: amd64
+          - arch: amd64
             runner: ubuntu-24.04
-          - target: web
-            image: portfolio
-            arch: arm64
-            runner: ubuntu-24.04-arm
-          - target: cv-updater
-            image: portfolio-cv-updater
-            arch: amd64
-            runner: ubuntu-24.04
-          - target: cv-updater
-            image: portfolio-cv-updater
-            arch: arm64
+          - arch: arm64
             runner: ubuntu-24.04-arm
 
     steps:
@@ -46,9 +33,7 @@ jobs:
 
       - name: Nome immagine
         id: name
-        env:
-          IMAGE_NAME: ${{ matrix.image }}
-        run: echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/$IMAGE_NAME" >> "$GITHUB_OUTPUT"
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/portfolio" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-buildx-action@v4
 
@@ -65,17 +50,27 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
-          target: ${{ matrix.target }}
+          target: runtime
           platforms: linux/${{ matrix.arch }}
           load: true
           tags: ${{ steps.name.outputs.image }}:sha-${{ github.sha }}-${{ matrix.arch }}
           labels: ${{ steps.meta.outputs.labels }}
           provenance: false
-          cache-from: |
-            type=gha,scope=native-${{ matrix.target }}-${{ matrix.arch }}
-            type=gha,scope=scan-${{ matrix.target }}
-            type=gha,scope=publish-${{ matrix.target }}
-          cache-to: type=gha,mode=max,scope=native-${{ matrix.target }}-${{ matrix.arch }}
+          cache-from: type=gha,scope=portfolio-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=portfolio-${{ matrix.arch }}
+
+      - name: Verifica updater e supervisore nell'immagine
+        env:
+          IMAGE: ${{ steps.name.outputs.image }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          docker run --rm --network none \
+            --volume "$GITHUB_WORKSPACE/docker:/workspace/docker:ro" \
+            --volume "$GITHUB_WORKSPACE/scripts/cv:/workspace/scripts/cv:ro" \
+            --volume "$GITHUB_WORKSPACE/tests/runtime:/workspace/tests/runtime:ro" \
+            --volume "$GITHUB_WORKSPACE/tests/updater:/workspace/tests/updater:ro" \
+            --workdir /workspace --entrypoint node "$IMAGE:sha-$GITHUB_SHA-$ARCH" \
+            --test tests/runtime/*.test.mjs tests/updater/*.test.mjs
 
       - name: Scansione vulnerabilità (Trivy)
         uses: aquasecurity/trivy-action@v0.36.0
@@ -99,59 +94,28 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v7
         with:
-          name: image-${{ matrix.target }}-${{ matrix.arch }}
+          name: image-${{ matrix.arch }}
           path: ${{ runner.temp }}/image-${{ matrix.arch }}.tar
           if-no-files-found: error
           compression-level: 0
           retention-days: 1
           overwrite: true
 
-  release:
-    name: Data di rilascio
+  publish:
+    name: Pubblicazione portfolio
     runs-on: ubuntu-24.04
     needs: scan
     if: github.ref == 'refs/heads/main' && needs.scan.result == 'success'
-    outputs:
-      tag: ${{ steps.date.outputs.tag }}
-    steps:
-      - name: Generazione tag UTC comune alle immagini
-        id: date
-        run: echo "tag=$(date -u +'%Y%m%d')" >> "$GITHUB_OUTPUT"
-
-  publish:
-    name: Pubblicazione - ${{ matrix.target }}
-    runs-on: ubuntu-24.04
-    needs: [scan, release]
-
-    if: github.ref == 'refs/heads/main' && needs.scan.result == 'success'
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: web
-            image: portfolio
-          - target: cv-updater
-            image: portfolio-cv-updater
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Nome immagine
         id: name
-        env:
-          IMAGE_NAME: ${{ matrix.image }}
-        run: echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/$IMAGE_NAME" >> "$GITHUB_OUTPUT"
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/portfolio" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-buildx-action@v4
-
-      - name: Metadati immagine
-        id: meta
-        uses: docker/metadata-action@v6
-        with:
-          images: ${{ steps.name.outputs.image }}
-          tags: |
-            type=raw,value=latest
-            type=raw,value=${{ needs.release.outputs.tag }}
-            type=sha,prefix=sha-
 
       - name: Login a GHCR
         uses: docker/login-action@v4
@@ -164,35 +128,30 @@ jobs:
       - name: Recupero varianti verificate
         uses: actions/download-artifact@v8
         with:
-          pattern: image-${{ matrix.target }}-*
+          pattern: image-*
           path: ${{ runner.temp }}/images
           merge-multiple: true
 
-      - name: Caricamento varianti verificate su GHCR
-        env:
-          IMAGE: ${{ steps.name.outputs.image }}
-        shell: bash
-        run: |
-          for arch in amd64 arm64; do
-            docker load --input "$RUNNER_TEMP/images/image-$arch.tar"
-          done
-          for arch in amd64 arm64; do
-            docker push "$IMAGE:sha-$GITHUB_SHA-$arch"
-          done
+      - name: Installazione strumento di copia per digest
+        run: sudo apt-get update && sudo apt-get install --yes skopeo
 
-      # Assembla solo il manifest delle immagini già compilate e analizzate.
+      # Copia le immagini verificate senza rebuild né tag intermedi sul registry.
       - name: Pubblicazione manifest multiarch
         env:
           IMAGE: ${{ steps.name.outputs.image }}
-          TAGS: ${{ steps.meta.outputs.tags }}
         shell: bash
         run: |
-          tag_args=()
-          while IFS= read -r tag; do
-            if [[ -n "$tag" ]]; then
-              tag_args+=(--tag "$tag")
-            fi
-          done <<< "$TAGS"
-          docker buildx imagetools create "${tag_args[@]}" \
-            "$IMAGE:sha-$GITHUB_SHA-amd64" \
-            "$IMAGE:sha-$GITHUB_SHA-arm64"
+          refs=()
+          for arch in amd64 arm64; do
+            image_dir="$RUNNER_TEMP/verified-$arch"
+            skopeo copy --format v2s2 --dest-compress \
+              "docker-archive:$RUNNER_TEMP/images/image-$arch.tar" "dir:$image_dir"
+            digest="$(skopeo manifest-digest "$image_dir/manifest.json")"
+            skopeo copy --preserve-digests --authfile "$HOME/.docker/config.json" \
+              "dir:$image_dir" "docker://$IMAGE@$digest"
+            refs+=("$IMAGE@$digest")
+          done
+          release_tag="$(date -u +'%Y%m%d')"
+          docker buildx imagetools create \
+            --tag "$IMAGE:latest" --tag "$IMAGE:$release_tag" "${refs[@]}"
+          echo "Pubblicata $IMAGE con i tag latest e $release_tag" >> "$GITHUB_STEP_SUMMARY"

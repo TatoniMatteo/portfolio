@@ -10,25 +10,14 @@ services:
     image: ghcr.io/tatonimatteo/portfolio:${IMAGE_TAG:-latest}
     build:
       context: .
-      target: web
+      target: runtime
     restart: unless-stopped
     ports:
-      - "${WEB_PORT:-8080}:80"
+      - "${WEB_PORT:-8080}:8080"
     volumes:
-      - cv-data:/cv-data:ro
-    depends_on:
-      - cv-updater
+      - cv-data:/cv-data
     security_opt:
       - no-new-privileges:true
-
-  # Controlla una volta al giorno se c'è una nuova release del CV nel repo
-  # privato e aggiorna i PDF nel volume condiviso (nessun restart del sito).
-  cv-updater:
-    image: ghcr.io/tatonimatteo/portfolio-cv-updater:${IMAGE_TAG:-latest}
-    build:
-      context: .
-      target: cv-updater
-    restart: unless-stopped
     environment:
       # PAT oppure GitHub App (vedi docker-compose.github-app.yml).
       # Senza credenziali il sito parte lo stesso, ma senza CV.
@@ -37,10 +26,6 @@ services:
       CV_CHECK_INTERVAL_HOURS: ${CV_CHECK_INTERVAL_HOURS:-24}
       CV_IT_FILENAME: ${CV_IT_FILENAME:-CV-Matteo-Tatoni-IT.pdf}
       CV_EN_FILENAME: ${CV_EN_FILENAME:-CV-Matteo-Tatoni-EN.pdf}
-    volumes:
-      - cv-data:/cv-data
-    security_opt:
-      - no-new-privileges:true
 
 volumes:
   cv-data:

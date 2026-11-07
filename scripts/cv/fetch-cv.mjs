@@ -7,11 +7,11 @@
  *   <CV_OUT_DIR>/cv-en.pdf
  *
  * Due modalità:
- *   node scripts/fetch-cv.mjs            controllo singolo (sviluppo locale)
- *   node scripts/fetch-cv.mjs --watch    resta attivo e controlla ogni
+ *   node scripts/cv/fetch-cv.mjs            controllo singolo (sviluppo locale)
+ *   node scripts/cv/fetch-cv.mjs --watch    resta attivo e controlla ogni
  *                                        CV_CHECK_INTERVAL_HOURS (default 24)
  *                                        -> è quello che gira nel container
- *                                           "cv-updater" sul server
+ *                                           "web" sul server
  *
  * Scarica solo se la release è cambiata (tag / id / data degli asset) e
  * sostituisce i file in modo atomico: il sito non serve mai un PDF a metà.
@@ -61,7 +61,7 @@ const LANGUAGES = [
 
 const OUT_DIR = process.env.CV_OUT_DIR
     ? resolve(process.env.CV_OUT_DIR)
-    : join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'cv');
+    : join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'public', 'cv');
 const META_FILE = join(OUT_DIR, '.cv-meta.json');
 
 const log = (message) => console.log(`[cv] ${message}`);

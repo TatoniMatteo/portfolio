@@ -2,7 +2,7 @@ import {defineConfig} from 'oxlint'
 
 export default defineConfig({
     plugins: ['typescript', 'react'],
-    ignorePatterns: ['dist/**'],
+    ignorePatterns: ['target/**'],
     categories: {
         correctness: 'error',
         suspicious: 'warn',

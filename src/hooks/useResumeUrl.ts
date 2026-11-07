@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 // I PDF non stanno nel repo: vengono scaricati dall'ultima release del repo
-// CV da scripts/fetch-cv.mjs in sviluppo e dal container updater in produzione.
+// CV da scripts/cv/fetch-cv.mjs in sviluppo e dal container updater in produzione.
 // Italiano se la lingua attiva è "it", altrimenti inglese.
 export const RESUME_DOWNLOAD_NAME = 'CV-Matteo-Tatoni.pdf';
 

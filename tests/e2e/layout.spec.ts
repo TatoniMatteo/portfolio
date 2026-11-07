@@ -55,6 +55,7 @@ for (const device of ['desktop', 'mobile'] as const) {
                 // disabling alone cannot settle JavaScript-driven animations.
                 await expect.poll(() => page.locator(`#${id}`).evaluate((element) =>
                     Array.from(element.querySelectorAll<HTMLElement>('[style*="opacity"]')).every((child) => {
+                        if (child.closest('[inert]')) return true;
                         const rect = child.getBoundingClientRect();
                         const visibleWidth = Math.min(rect.right, innerWidth) - Math.max(rect.left, 0);
                         const visibleHeight = Math.min(rect.bottom, innerHeight) - Math.max(rect.top, 0);

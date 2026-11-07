@@ -1,12 +1,7 @@
 # syntax=docker/dockerfile:1
 #
-# Un solo Dockerfile, due immagini (target):
-#   --target web          sito statico servito da Caddy (porta 80)
-#   --target cv-updater   controlla la release del CV e aggiorna i PDF
-#
-# I PDF del CV sono conservati nel volume condiviso /cv-data.
-# Il cv-updater li aggiorna senza ricostruire il sito e senza includere token
-# nell'immagine web.
+# Un'unica immagine e un container: Caddy e updater CV gestiti da start.mjs.
+# I PDF e le credenziali restano sul server, fuori dall'immagine.
 
 # ---- build del frontend ----
 FROM --platform=$BUILDPLATFORM node:24.22.2-alpine AS build
@@ -35,34 +30,17 @@ ENV GOTOOLCHAIN=go1.27.3
 # Aggiorna x/net senza registrarlo come plugin Caddy.
 # --with non è adatto: x/net non è un plugin importabile da xcaddy.
 RUN xcaddy build v2.11.7 \
-    --replace golang.org/x/net=golang.org/x/net@v0.61.0 \
+    --replace golang.org/x/net=golang.org/x/net@v0.62.0 \
     --replace github.com/go-jose/go-jose/v4=github.com/go-jose/go-jose/v4@v4.1.6 \
     --output /usr/bin/caddy
 
 
-# ---- immagine web ----
-FROM caddy:2.11.7-alpine AS web
+# ---- immagine runtime ----
+FROM node:24.22.2-alpine AS runtime
 
-# Sostituisce il binario ufficiale con quello ricompilato.
 COPY --from=caddy-build /usr/bin/caddy /usr/bin/caddy
 
-RUN apk upgrade --no-cache \
-    && mkdir -p /cv-data \
-    && chown 1000:1000 /cv-data
-
-COPY docker/Caddyfile /etc/caddy/Caddyfile
-COPY --from=build /app/dist /srv
-
-EXPOSE 80
-
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
-    CMD wget -q --spider http://127.0.0.1/ || exit 1
-
-
-# ---- immagine cv-updater ----
-FROM node:24.22.2-alpine AS cv-updater
-
-# Non servono npm, npx, Corepack o Yarn durante l'esecuzione.
+# Il runtime richiede solo Node e Caddy, senza package manager.
 RUN apk upgrade --no-cache \
     && rm -rf \
         /usr/local/lib/node_modules/npm \
@@ -73,16 +51,25 @@ RUN apk upgrade --no-cache \
         /usr/local/bin/corepack \
         /usr/local/bin/yarn \
         /usr/local/bin/yarnpkg \
-    && mkdir -p /cv-data \
-    && chown node:node /cv-data
+    && mkdir -p /cv-data /data/caddy /config/caddy \
+    && chown -R node:node /cv-data /data /config
 
 WORKDIR /app
 
-COPY --chown=node:node scripts/fetch-cv.mjs ./fetch-cv.mjs
-COPY --chown=node:node scripts/github-auth.mjs ./github-auth.mjs
+COPY --chown=node:node scripts/cv/fetch-cv.mjs scripts/cv/github-auth.mjs ./
+COPY --chown=node:node docker/start.mjs ./
+COPY docker/Caddyfile /etc/caddy/Caddyfile
+COPY --from=build /app/target/dist /srv
 
 USER node
 
-ENV CV_OUT_DIR=/cv-data
+ENV CV_OUT_DIR=/cv-data \
+    XDG_DATA_HOME=/data \
+    XDG_CONFIG_HOME=/config
 
-CMD ["node", "fetch-cv.mjs", "--watch"]
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
+    CMD wget -q --spider http://127.0.0.1:8080/ || exit 1
+
+CMD ["node", "start.mjs"]

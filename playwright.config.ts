@@ -1,10 +1,10 @@
 import {defineConfig} from '@playwright/test';
 
 export default defineConfig({
-    testDir: './tests',
-    testIgnore: '**/updater/**',
+    testDir: './tests/e2e',
+    outputDir: 'target/test-results',
     fullyParallel: true,
-    reporter: [['list'], ['html', {open: 'never'}]],
+    reporter: [['list'], ['html', {outputFolder: 'target/playwright-report', open: 'never'}]],
     snapshotPathTemplate: '{testDir}/__screenshots__/{platform}/{arg}{ext}',
     use: {
         baseURL: 'http://127.0.0.1:4173',

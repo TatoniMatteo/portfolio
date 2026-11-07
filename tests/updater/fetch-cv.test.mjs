@@ -36,7 +36,7 @@ const fixture = async (t) => {
     await once(server, 'listening');
     api = `http://127.0.0.1:${server.address().port}`;
     const run = async (env = {}) => {
-        const child = spawn(process.execPath, ['scripts/fetch-cv.mjs'], {env: {
+        const child = spawn(process.execPath, ['scripts/cv/fetch-cv.mjs'], {env: {
             ...process.env, CI: 'true', CV_WATCH: 'false', CV_APP_ID: '', CV_APP_PRIVATE_KEY_FILE: '',
             CV_REPO_TOKEN: 'fixture-token', CV_REPO: 'owner/CV', GITHUB_API_URL: api,
             CV_OUT_DIR: directory, CV_IT_FILENAME: '', CV_EN_FILENAME: '', ...env,

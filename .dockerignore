@@ -1,6 +1,5 @@
 node_modules
-dist
-dist-ssr
+target/
 .git
 .github
 .env
@@ -12,17 +11,11 @@ secrets/
 public/cv
 *.log
 
-# Playwright artifacts
-test-results/
-playwright-report/
-
-# Development files not needed to build either image
+# Development files not needed in the image
 tests/
 playwright.config.ts
 playwright/.cache/
 playwright/.auth/
-blob-report/
-coverage/
 .idea/
 .codex/
 .vscode/

@@ -10,9 +10,9 @@
     box-sizing: border-box;
     scroll-snap-align: none;
 }
-.site-header { position: absolute; inset: 0 0 auto; z-index: var(--layer-navigation); }
+.site-header { position: absolute; inset: 0 -42px auto; z-index: var(--layer-navigation); }
 .hero-stage { position: sticky; top: 0; height: 100svh; padding: calc(var(--navbar-top-spacing) + var(--navbar-height) + var(--hero-top-spacing)) 0 24px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
-.hero-scenes { position: relative; flex: 1; min-height: 0; }
+.hero-scenes { position: relative; flex: 1; min-height: 0; perspective: 1200px; }
 .hero-scene { position: absolute; inset: 0; display: grid; grid-template-columns: 1.25fr 1fr; gap: 64px; align-items: center; }
 .hero-copy { min-width: 0; }
 .hero-eyebrow { display: block; text-transform: uppercase; letter-spacing: .16em; font-size: 12px; font-weight: 600; margin-bottom: 24px; color: var(--color-accent-text); }
@@ -20,12 +20,6 @@
 .hero h1 span, .hero h2 span { background: var(--gradient-text); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .hero p { margin-top: 24px; max-width: 39ch; font-size: clamp(17px, 1.6vw, 21px); line-height: 1.6; }
 .hero-portrait-scene { display: flex; justify-content: center; }
-.hero-code-sparks {
-    position: absolute;
-    inset: -48px;
-    pointer-events: none;
-    span { position: absolute; font: 900 14px monospace; -webkit-text-stroke: .65px currentColor; paint-order: stroke fill; letter-spacing: .02em; translate: -50% -50%; opacity: 0; animation: portrait-code-spark 4.8s linear infinite; }
-}
 .hero-tech { position: relative; width: 100%; max-width: 390px; height: 340px; justify-self: center; }
 .hero-tech-card { position: absolute; display: flex; flex-direction: column; gap: 12px; width: 210px; padding: 24px; border: 1px solid var(--glass-border); border-radius: 24px; background: var(--glass-surface); box-shadow: var(--glass-shadow); backdrop-filter: blur(18px); }
 .hero-tech-card svg { width: 56px; height: 56px; margin: 6px 0; }
@@ -38,8 +32,9 @@
 .hero-bottom { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px 0; }
 .hero-scroll-hint { display: flex; gap: 16px; align-items: center; font-size: 13px; }
 .hero-scroll-hint span { font-size: 24px; color: var(--color-primary); }
-.hero img { width: var(--portrait-size); height: var(--portrait-size); border-radius: 50%; object-fit: cover; border: 3px solid var(--color-text); }
-.hero-portrait { position: relative; border-radius: 50%; margin: 16px 0; }
+.hero-portrait img { width: calc(var(--portrait-size) + 40px); height: calc(var(--portrait-size) + 40px); border-radius: 50%; object-fit: cover; border: 3px solid var(--color-text); }
+.hero-portrait { position: relative; isolation: isolate; border-radius: 50%; margin: 16px 0; }
+.hero-portrait::before { content: ''; position: absolute; inset: -24px; z-index: -1; border-radius: inherit; background: radial-gradient(ellipse at 25% 35%, color-mix(in srgb, var(--color-primary) 28%, transparent), transparent 65%), radial-gradient(ellipse at 75% 65%, color-mix(in srgb, var(--color-accent) 24%, transparent), transparent 65%); filter: blur(24px); pointer-events: none; }
 .portrait-orbits { position: absolute; inset: -26px; width: calc(100% + 52px); height: calc(100% + 52px); overflow: visible; pointer-events: none; }
 .portrait-orbit { fill: none; transform-origin: 180px 180px; }
 .portrait-orbit-blue { stroke: var(--color-primary); stroke-width: 1.5px; opacity: .45; transform: rotate(25deg); animation: hero-orbit-blue 60s linear infinite reverse; }
@@ -64,13 +59,13 @@
 
 @include tokens.down(mobile) {
     #home.hero { padding: 0 24px; }
+    .site-header { inset-inline: -24px; }
     .hero-stage { padding-bottom: 12px; }
     .hero-scene { grid-template-columns: 1fr; grid-template-rows: auto auto; align-content: center; gap: 32px; }
     .hero h1, .hero h2 { font-size: clamp(32px, 9vw, 48px); }
     .hero-eyebrow { margin-bottom: 14px; font-size: 10px; }
     .hero p { margin-top: 16px; font-size: 16px; line-height: 1.5; }
-    .hero img { width: clamp(120px, 22svh, 190px); height: clamp(120px, 22svh, 190px); }
-    .hero-code-sparks { inset: -24px; }
+    .hero-portrait img { width: clamp(140px, 24svh, 210px); height: clamp(140px, 24svh, 210px); }
     .hero-tech { max-width: 280px; height: 240px; }
     .hero-tech-card { width: 160px; padding: 16px; gap: 8px; border-radius: 18px; }
     .hero-tech-card svg { width: 36px; height: 36px; margin: 0; }
@@ -84,22 +79,23 @@
 
 @media (max-height: 650px) and (min-width: 769px) {
     .hero h1, .hero h2 { font-size: 42px; }
-    .hero img { width: 180px; height: 180px; }
+    .hero-portrait img { width: 200px; height: 200px; }
     .hero-tech { height: 270px; max-width: 320px; }
     .hero-tech-card { padding: 16px; }
 }
 
 #home.hero[data-reduced-motion='true'] {
     height: auto;
-    margin-top: var(--hero-top-spacing);
+    margin-top: 0;
     .hero-stage { position: relative; top: auto; height: auto; padding-top: 0; }
+    .site-header { position: relative; inset: auto; margin: 0 -42px var(--hero-top-spacing); display: flow-root; }
+    .hero-scenes { perspective: none; }
     .hero-scene { position: relative; min-height: 65svh; padding: 40px 0; }
     .hero-bottom { flex-wrap: wrap; }
 }
 
-.hero:not([data-motion-active='true']) .portrait-orbit,
-.hero:not([data-motion-active='true']) .hero-code-sparks span { animation-play-state: paused; }
+.hero:not([data-motion-active='true']) .portrait-orbit { animation-play-state: paused; }
 
-@media (prefers-reduced-motion: reduce) {
-    .site-header { position: relative; }
+@include tokens.down(mobile) {
+    #home.hero[data-reduced-motion='true'] .site-header { margin-inline: -24px; }
 }

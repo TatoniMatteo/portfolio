@@ -1,5 +1,4 @@
 import ScrollEffects from "./components/scroll-effects/ScrollEffects";
-import Navbar from "./components/navbar/Navbar.tsx";
 import Hero from "./components/hero/Hero.tsx";
 import About from "./components/about/About.tsx";
 import Career from "./components/career/Career.tsx";
@@ -13,7 +12,6 @@ const App = () => {
     return (
         <div>
             <ScrollEffects/>
-            <header className="site-header"><Navbar/></header>
             <main id="main-content">
                 <Hero/>
                 <About/>

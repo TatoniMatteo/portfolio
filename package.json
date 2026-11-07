@@ -6,14 +6,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "fetch-cv": "node scripts/fetch-cv.mjs",
+    "fetch-cv": "node scripts/cv/fetch-cv.mjs",
     "predev": "npm run fetch-cv",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report target/playwright-report",
     "test:updater": "node --test tests/updater/*.test.mjs",
+    "test:runtime": "node --test tests/runtime/*.test.mjs",
     "clean": "node scripts/clean.mjs"
   },
   "dependencies": {

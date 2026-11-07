@@ -8,13 +8,11 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-dist
-dist-ssr
+target/
 *.local
 *.tsbuildinfo
-coverage/
 
-# CV scaricato dall'ultima release del repo privato (scripts/fetch-cv.mjs)
+# CV scaricato dall'ultima release del repo privato (scripts/cv/fetch-cv.mjs)
 public/cv/
 
 # Variabili d'ambiente locali (token)
@@ -39,8 +37,5 @@ secrets/
 *.sw?
 
 # Playwright artifacts
-test-results/
-playwright-report/
-blob-report/
 playwright/.cache/
 playwright/.auth/

@@ -2,7 +2,7 @@ import {rm} from 'node:fs/promises';
 
 // Only reproducible output; source files, fixtures and CVs are preserved.
 const directories = [
-    'dist', 'dist-ssr', 'test-results', 'playwright-report', 'blob-report', 'coverage',
+    'target',
     'node_modules/.tmp', 'node_modules/.vite', 'node_modules/.vite-temp',
     'playwright/.cache',
 ];

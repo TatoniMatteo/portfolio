@@ -7,7 +7,7 @@ import {join} from 'node:path';
 import {spawn} from 'node:child_process';
 import {once} from 'node:events';
 import {test} from 'node:test';
-import {createTokenProvider} from '../../scripts/github-auth.mjs';
+import {createTokenProvider} from '../../scripts/cv/github-auth.mjs';
 
 const pair = generateKeyPairSync('rsa', {modulusLength: 2048});
 const pem = pair.privateKey.export({type: 'pkcs1', format: 'pem'});
@@ -113,7 +113,7 @@ test('the updater downloads private release assets with an App token and persist
     await once(server, 'listening');
     api = `http://127.0.0.1:${server.address().port}`;
     const output = join(directory, 'cv');
-    const child = spawn(process.execPath, ['scripts/fetch-cv.mjs'], {env: {...process.env, ...env, CI: 'true', CV_WATCH: 'false', CV_REPO_TOKEN: '', GITHUB_TOKEN: '', GITHUB_API_URL: api, CV_OUT_DIR: output}});
+    const child = spawn(process.execPath, ['scripts/cv/fetch-cv.mjs'], {env: {...process.env, ...env, CI: 'true', CV_WATCH: 'false', CV_REPO_TOKEN: '', GITHUB_TOKEN: '', GITHUB_API_URL: api, CV_OUT_DIR: output}});
     let logs = '';
     child.stdout.on('data', (chunk) => { logs += chunk; });
     child.stderr.on('data', (chunk) => { logs += chunk; });
