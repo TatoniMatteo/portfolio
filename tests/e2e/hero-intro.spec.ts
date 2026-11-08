@@ -20,7 +20,7 @@ for (const width of [390, 1440]) {
         const stage = page.locator('.hero-stage');
         const header = page.getByRole('banner');
         const headerTop = (await header.boundingBox())!.y;
-        const trail = page.locator('.code-transition-trail');
+        await expect(page.locator('.code-transition-trail, .code-transition-ball, .code-transition-particle, .liquid-transition-defs')).toHaveCount(0);
         const jump = async (progress: number) => page.evaluate((top) => window.scrollTo({top, behavior: 'instant'}), travel * progress);
         for (const [index, progress] of [0, .5, 1].entries()) {
             await jump(progress);
@@ -30,42 +30,27 @@ for (const width of [390, 1440]) {
             expect((await stage.boundingBox())!.y).toBeCloseTo(0, 0);
             expect((await header.boundingBox())!.y).toBeCloseTo(headerTop, 0);
             await expect(page.locator('.hero-contact')).toBeInViewport();
-            await expect(trail).toHaveCSS('opacity', '0');
             await page.screenshot({path: testInfo.outputPath(`intro-${index + 1}.png`)});
         }
         await expect(scenes[2]).toContainText('Apache Syncope.');
         await expect(scenes[2].getByRole('link')).toHaveAttribute('href', '#open-source');
-        for (const progress of [.73, .27]) {
+        for (const [progress, visible] of [[.18, 0], [.36, 1], [.64, 1], [.82, 2]]) {
             await jump(progress);
-            await expect(trail).toHaveCSS('opacity', '1');
-            await expect(page.locator('.code-transition-ball')).toBeVisible();
-            await expect(page.locator('.code-transition-particle')).toHaveCount(360);
-            await expect(page.locator('feDisplacementMap, .code-transition-veil, .code-transition-symbol')).toHaveCount(0);
+            await expect.poll(() => scenes[visible].evaluate((element) => Number(getComputedStyle(element).opacity)))
+                .toBeCloseTo(.5, 1);
+            for (const index of [0, 1, 2].filter((candidate) => candidate !== visible)) {
+                await expect(scenes[index]).toHaveCSS('opacity', '0');
+            }
             for (const scene of scenes) {
                 await expect(scene).toHaveCSS('filter', 'none');
+                await expect(scene).toHaveCSS('clip-path', 'none');
                 expect(await scene.evaluate((element) => new DOMMatrix(getComputedStyle(element).transform).m42)).toBe(0);
             }
             await page.screenshot({path: testInfo.outputPath(`intro-transition-${progress}.png`)});
         }
-        const ball = page.locator('.code-transition-ball');
-        for (const [from, to, direction] of [[.18, .32, 1], [.64, .78, -1]]) {
-            await jump(from);
-            await expect.poll(() => ball.evaluate((element) => parseFloat((element as HTMLElement).style.left)))
-                .toBeCloseTo(direction === 1 ? 26.7 : 73.3, 0);
-            const before = (await ball.boundingBox())!;
-            await jump(to);
-            await expect.poll(() => ball.evaluate((element) => parseFloat((element as HTMLElement).style.left)))
-                .toBeCloseTo(direction === 1 ? 88.9 : 11.1, 0);
-            const after = (await ball.boundingBox())!;
-            expect((after.x - before.x) * direction).toBeGreaterThan(width * .4);
-            if (width <= 768) {
-                expect((after.y - before.y) * direction).toBeGreaterThan((await trail.boundingBox())!.height * .15);
-            }
-        }
         await jump(0);
         await expect(scenes[0]).toHaveAttribute('aria-hidden', 'false');
         await expect(scenes[0]).toHaveCSS('opacity', '1');
-        await expect(trail).toHaveCSS('opacity', '0');
         await page.evaluate((top) => window.scrollTo({top, behavior: 'instant'}), travel + 200);
         await expect.poll(async () => (await stage.boundingBox())!.y).toBeLessThan(-100);
         expect((await header.boundingBox())!.y).toBeCloseTo((await stage.boundingBox())!.y, 0);
@@ -102,9 +87,10 @@ test('enabling reduced motion during the reveal releases all three complete scen
     await page.goto('/');
     await page.evaluate(() => {
         document.documentElement.style.scrollSnapType = 'none';
-        window.scrollTo({top: (document.getElementById('home')!.offsetHeight - innerHeight) * .73, behavior: 'instant'});
+        window.scrollTo({top: (document.getElementById('home')!.offsetHeight - innerHeight) * .82, behavior: 'instant'});
     });
-    await expect(page.locator('.code-transition-trail')).toHaveCSS('opacity', '1');
+    await expect.poll(() => page.locator('.hero-scene-third').evaluate((element) => Number(getComputedStyle(element).opacity)))
+        .toBeCloseTo(.5, 1);
     await page.emulateMedia({reducedMotion: 'reduce'});
     await expect(page.locator('.liquid-transition-defs, .code-transition-trail')).toHaveCount(0);
     await expect(page.locator('.hero-scene[inert]')).toHaveCount(0);

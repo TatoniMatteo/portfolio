@@ -3,9 +3,11 @@ import {useTranslation} from 'react-i18next';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faArrowUp, faCode} from '@fortawesome/free-solid-svg-icons';
 import {CURRENT_YEAR} from '../../utils/date';
+import {useMotionTheme} from '../../hooks/useMotionTheme';
 
 const Footer = () => {
     const {t} = useTranslation();
+    const {reduced, setReduced} = useMotionTheme();
     const footerRef = useRef<HTMLElement>(null);
     useLayoutEffect(() => {
         const footer = footerRef.current;
@@ -33,6 +35,18 @@ const Footer = () => {
                 </div>
                 <div className="footer-meta">
                     <p>© {years} Matteo Tatoni. {t('footer.rights')}</p>
+                    <label className="footer-motion-switch">
+                        <input type="checkbox" role="switch" checked={reduced}
+                            onChange={(event) => {
+                                const input = event.currentTarget;
+                                const top = input.getBoundingClientRect().top;
+                                setReduced(input.checked);
+                                requestAnimationFrame(() => window.scrollBy({
+                                    top: input.getBoundingClientRect().top - top, behavior: 'instant',
+                                }));
+                            }}/>
+                        <span>{t('footer.reduceMotion')}</span>
+                    </label>
                 </div>
             </div>
         </footer>

@@ -403,11 +403,22 @@
     span span { font-size: .75rem; }
 }
 .footer-links { display: flex; flex-wrap: wrap; gap: 16px 28px; a { display: inline-flex; align-items: center; gap: var(--space-2); padding-block: var(--space-2); font-size: .8125rem; &:hover { color: var(--color-primary); } } }
-.footer-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-6); font-size: .75rem; line-height: 1.7; }
+.footer-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-6); font-size: .75rem; line-height: 1.7; }
+.footer-motion-switch {
+    display: inline-flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer;
+    input {
+        appearance: none; position: relative; flex-shrink: 0; width: 36px; height: 22px;
+        border: 1px solid var(--glass-border); border-radius: var(--radius-pill);
+        background: var(--color-border); cursor: inherit;
+        &::after { content: ''; position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--color-text); }
+        &:checked { background: var(--color-primary); }
+        &:checked::after { translate: 14px; background: var(--color-on-primary); }
+    }
+}
 @include tokens.down(mobile) {
     .footer-content { padding-block: var(--space-6); }
     .footer-main { align-items: flex-start; flex-direction: column; gap: var(--space-4); }
-    .footer-meta { flex-direction: column; margin-top: var(--space-4); }
+    .footer-meta { flex-direction: column; align-items: flex-start; margin-top: var(--space-4); }
 }
 
 [data-theme='dark'] .skill-chip:is([data-skill='GitHub'], [data-skill='OpenAI']) .skill-icon { filter: invert(1); }

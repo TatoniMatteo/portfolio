@@ -18,8 +18,9 @@
 
 @keyframes pdf-progress { to { background-position: -200% 0; } }
 
-@media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; scroll-snap-type: none; }
+html[data-reduced-motion='true'] {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
     *, *::before, *::after { animation: none !important; transition: none !important; }
     .hero-contact:hover, .hero-resume:hover, .resume-download:hover,
     .project-link:hover, .contact-card:hover, .pdf-btn:hover:not(:disabled) { translate: none; transform: none; }

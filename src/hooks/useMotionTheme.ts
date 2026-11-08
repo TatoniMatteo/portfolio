@@ -1,16 +1,42 @@
 import {useSyncExternalStore} from 'react';
 
 const motionQuery = '(prefers-reduced-motion: reduce)';
-const subscribe = (onChange: () => void) => {
-    const preference = window.matchMedia(motionQuery);
-    preference.addEventListener('change', onChange);
-    return () => preference.removeEventListener('change', onChange);
+const storageKey = 'portfolio-reduced-motion';
+const changeEvent = 'portfolio-motion-change';
+const readPreference = (): boolean | undefined => {
+    try {
+        const value = localStorage.getItem(storageKey);
+        return value === 'true' ? true : value === 'false' ? false : undefined;
+    } catch { return undefined; }
 };
-const getSnapshot = () => window.matchMedia(motionQuery).matches;
+let preference = readPreference();
+export const readReducedMotion = () => preference ?? window.matchMedia(motionQuery).matches;
+const subscribe = (onChange: () => void) => {
+    const media = window.matchMedia(motionQuery);
+    const sync = (event: StorageEvent) => {
+        if (event.key === storageKey || event.key === null) {
+            preference = readPreference();
+            onChange();
+        }
+    };
+    media.addEventListener('change', onChange);
+    window.addEventListener(changeEvent, onChange);
+    window.addEventListener('storage', sync);
+    return () => {
+        media.removeEventListener('change', onChange);
+        window.removeEventListener(changeEvent, onChange);
+        window.removeEventListener('storage', sync);
+    };
+};
+const setReducedMotion = (reduced: boolean) => {
+    preference = reduced;
+    try { localStorage.setItem(storageKey, String(reduced)); } catch { /* Keep working without persistent storage. */ }
+    window.dispatchEvent(new Event(changeEvent));
+};
 
 // Motion and native fullscreen animations read the same timing tokens as SASS.
 export const useMotionTheme = () => {
-    const reduced = useSyncExternalStore(subscribe, getSnapshot, () => true);
+    const reduced = useSyncExternalStore(subscribe, readReducedMotion, () => true);
     const styles = getComputedStyle(document.documentElement);
     const duration = (token: string, fallback: number) => reduced ? 0 : parseFloat(styles.getPropertyValue(token)) || fallback;
     const easing = styles.getPropertyValue('--motion-ease').trim() || 'cubic-bezier(.22, 1, .36, 1)';
@@ -25,7 +51,7 @@ export const useMotionTheme = () => {
     };
     const transition = {duration: timings.reveal, ease};
     return {
-        reduced, timings, easing, ease,
+        reduced, setReduced: setReducedMotion, timings, easing, ease,
         reveal: {
             initial: reduced ? false as const : {opacity: 0, y: 12},
             whileInView: {opacity: 1, y: 0},

@@ -186,6 +186,7 @@
         "phone": "Phone"
     },
     "footer": {
+        "reduceMotion": "Reduce animations",
         "rights": "All rights reserved.",
         "source": "Source code",
         "backToTop": "Back to top"
