@@ -1,0 +1,39 @@
+services:
+  web:
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+    image: ghcr.io/tatonimatteo/portfolio:20261108
+    restart: unless-stopped
+    networks:
+      proxy:
+        aliases:
+          - portfolio-web
+        gw_priority: 0
+    environment:
+      CV_REPO_TOKEN: ${CV_REPO_TOKEN:-}
+      CV_APP_ID: ${CV_APP_ID:-}
+      CV_CHECK_INTERVAL_HOURS: ${CV_CHECK_INTERVAL_HOURS:-24}
+      CV_IT_FILENAME: ${CV_IT_FILENAME:-CV-Matteo-Tatoni-IT.pdf}
+      CV_EN_FILENAME: ${CV_EN_FILENAME:-CV-Matteo-Tatoni-EN.pdf}
+      CV_APP_PRIVATE_KEY_FILE: /run/secrets/cv_app_key
+    volumes:
+      - cv-data:/cv-data
+    security_opt:
+      - no-new-privileges:true
+    secrets:
+      - cv_app_key
+
+volumes:
+  cv-data:
+
+networks:
+  proxy:
+    external: true
+    name: ingress_portfolio
+
+secrets:
+  cv_app_key:
+    file: ${CV_APP_PRIVATE_KEY_PATH:-./secrets/cv-app.pem}

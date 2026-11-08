@@ -33,8 +33,13 @@
     padding: 15px;
 
     @include tokens.down(mobile) {
-        gap: 10px;
-        min-height: 0;
+        margin-block: 0;
+        height: 100svh;
+        padding: 16px;
+        gap: 16px;
+        min-height: 100svh;
+        scroll-snap-align: start;
+        scroll-margin-top: 0;
     }
 }
 
@@ -59,6 +64,14 @@
     h2 { font-size: clamp(2rem, 4vw, 2.5rem); line-height: 1.15; }
 }
 .section-title-line { display: block; height: 3px; width: 72px; margin: 20px auto 0; border-radius: var(--radius-xs); background: var(--gradient-progress); transform-origin: center; }
+
+@include tokens.down(mobile) {
+    #about-heading { align-self: stretch; }
+    .section#contact-me { min-height: 100svh; scroll-snap-align: start; scroll-margin-bottom: 0; }
+    .section-title { align-self: flex-start; margin-bottom: 8px; text-align: left; }
+    .section-title h2 { font-size: 1.75rem; }
+    .section-title-line { width: 48px; margin: 12px 0 0; }
+}
 .reading-progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; transform-origin: 0 50%; background: var(--gradient-progress); z-index: var(--layer-progress); pointer-events: none; }
 .career-body { width: 100%; }
 
@@ -81,3 +94,41 @@
     .section-guide a:hover .section-guide-label, .section-guide a:focus-visible .section-guide-label { opacity: 1; transform: none; }
 }
 footer { scroll-snap-align: end; }
+
+.mobile-panels { width: 100%; min-width: 0; }
+.mobile-panels-track {
+    position: relative;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    gap: 16px;
+    padding: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    align-items: start;
+}
+.mobile-panel {
+    min-width: 0;
+    max-height: var(--mobile-panel-height, calc(100svh - 184px));
+    overflow-y: auto;
+    overscroll-behavior-y: auto;
+    scrollbar-gutter: stable;
+    scroll-snap-align: start;
+    scroll-margin-inline: 8px;
+    padding: 8px;
+    box-sizing: border-box;
+}
+.mobile-panels-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 4px 8px 0;
+    font-size: .8125rem;
+    font-variant-numeric: tabular-nums;
+    button { width: 44px; height: 44px; border: 1px solid var(--glass-border); border-radius: var(--radius-pill); background: var(--glass-surface); color: var(--color-text); cursor: pointer; font-size: 20px; }
+    button:disabled { opacity: .35; cursor: default; }
+}
+.mobile-panels-hint { margin-right: auto; font-size: .75rem; }

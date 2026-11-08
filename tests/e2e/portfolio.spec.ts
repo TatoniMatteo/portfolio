@@ -114,7 +114,7 @@ for (const scenario of ['zero', 'partial'] as const) {
         });
         await page.goto('/');
         if (scenario === 'partial') await expect(page.locator('.contribution-card')).toHaveCount(4);
-        else await expect(page.getByRole('status')).toHaveText('No public contributions to open source projects found.');
+        else await expect(page.locator('#open-source').getByRole('status')).toHaveText('No public contributions to open source projects found.');
         await expect(page.locator('.contribution-card-featured')).toHaveCount(0);
         if (scenario === 'partial') {
             await expect(page.locator('.contribution-card:last-child h3')).toHaveText('ConnIdAzureBundle');

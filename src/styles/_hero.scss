@@ -1,9 +1,9 @@
 @use 'tokens';
 
-// Two short scenes share a pinned stage, followed by the normal document flow.
+// Three short scenes share a pinned stage, followed by the normal document flow.
 #home.hero {
     position: relative;
-    height: 200svh;
+    height: 360svh;
     max-width: var(--layout-content-width);
     margin: 0 auto;
     padding: 0 32px;
@@ -98,4 +98,51 @@
 
 @include tokens.down(mobile) {
     #home.hero[data-reduced-motion='true'] .site-header { margin-inline: -24px; }
+}
+
+@media (max-width: 768px) and (max-height: 700px) {
+    .hero-stage { padding-top: calc(var(--navbar-top-spacing) + var(--navbar-height) + 12px); padding-bottom: 8px; }
+    .hero-scene { gap: 16px; }
+    .hero h2 { font-size: 28px; }
+    .hero-tech { max-width: 248px; height: 140px; }
+    .hero-tech-card { width: 140px; padding: 10px; gap: 4px; }
+    .hero-tech-card svg { width: 24px; height: 24px; }
+    .hero-tech-card strong { font-size: 14px; }
+    .hero-bottom { gap: 8px; padding: 12px 0 8px; }
+}
+
+@media (max-width: 768px) and (max-height: 420px) {
+    .hero-scene { grid-template-columns: 1.2fr 1fr; grid-template-rows: auto; }
+    .hero h1, .hero h2 { font-size: 24px; }
+    .hero p { font-size: 14px; line-height: 1.4; margin-top: 8px; }
+    .hero-eyebrow { margin-bottom: 6px; font-size: 9px; }
+    .hero-portrait img { width: 110px; height: 110px; }
+    .hero-tech { max-width: 200px; height: 130px; }
+    .hero-tech-card { width: 120px; }
+    .hero-bottom { flex-direction: row; justify-content: center; }
+    .hero-scroll-hint { display: none; }
+}
+
+.hero-contributions { display: inline-flex; align-items: center; gap: 12px; margin-top: 20px; font-size: 14px; color: var(--color-primary); text-decoration: underline; text-underline-offset: 4px; }
+.hero-community { width: 100%; max-width: 350px; justify-self: center; }
+.hero-community-card { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; padding: 28px; border: 1px solid var(--glass-border); border-radius: 24px; background: var(--glass-surface); box-shadow: var(--glass-shadow); }
+.hero-apache-logo { display: block; width: 100%; height: 150px; object-fit: contain; }
+.hero-community-card strong { font-size: 28px; letter-spacing: -.03em; }
+.hero-committer-badge { padding: 6px 12px; border-radius: var(--radius-pill); background: var(--color-selected); color: var(--color-primary); font-size: 11px; font-weight: 600; letter-spacing: .12em; }
+@include tokens.down(mobile) {
+    .hero-community { max-width: 280px; }
+    .hero-community-card { padding: 20px; gap: 12px; }
+    .hero-community-card strong { font-size: 23px; }
+}
+@media (max-width: 768px) and (max-height: 700px) {
+    .hero-community { max-width: 230px; }
+    .hero-community-card { padding: 12px; gap: 6px; }
+    .hero-apache-logo { height: 40px; }
+    .hero-community-card strong { font-size: 19px; }
+    .hero-contributions { margin-top: 10px; font-size: 13px; }
+}
+@media (max-width: 768px) and (max-height: 700px) {
+    .hero-scene-third { gap: 12px; }
+    .hero-scene-third p { font-size: 14px; line-height: 1.45; }
+    .hero-scene-third .hero-eyebrow { margin-bottom: 8px; }
 }

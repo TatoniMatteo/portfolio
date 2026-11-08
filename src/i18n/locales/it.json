@@ -1,4 +1,10 @@
 {
+    "panels": {
+        "previous": "Pannello precedente",
+        "next": "Pannello successivo",
+        "hint": "Scorri di lato",
+        "position": "Pannello {{current}} di {{total}}"
+    },
     "nav": {
         "home": "Home",
         "aboutMe": "Chi Sono",
@@ -19,9 +25,14 @@
         "backendNote": "Qui mi sento a casa.",
         "frontendNote": "Qui sperimento.",
         "scrollHint": "Scopri qualcosa di me",
+        "thirdEyebrow": "Il mio contributo all’open source",
+        "thirdTitle": "Sono committer di",
+        "thirdAccent": "Apache Syncope.",
+        "thirdDescription": "Contribuisco al progetto insieme alla community Apache: sviluppo funzionalità, correggo problemi e partecipo all’evoluzione del codice.",
+        "thirdLink": "Scopri i miei contributi",
         "greeting": "Ciao, sono {{name}}.",
         "role": "Full Stack Software Developer",
-        "description": "Mi piace costruire cose che funzionano. E che siano anche belle da usare. Ti faccio vedere?",
+        "description": "Mi piace creare software che funzioni bene e sia semplice da usare. Qui ti racconto come lavoro.",
         "contact": "Contattami",
         "resume": "Il mio CV"
     },

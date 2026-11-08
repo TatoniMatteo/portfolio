@@ -53,11 +53,11 @@ for (const count of [2, 3]) {
                 expect(second.x).toBeGreaterThan(first.x + first.width);
                 expect(Math.abs(first.height - second.height)).toBeLessThan(1);
             } else {
-                expect(Math.abs(first.x - second.x)).toBeLessThan(1);
-                expect(second.y).toBeGreaterThan(first.y + first.height);
+                expect(second.x).toBeGreaterThan(first.x + first.width);
+                await expect(section.locator('.mobile-panels-track')).toHaveCSS('overflow-x', 'auto');
             }
             const story = (await section.locator('.open-source-story').boundingBox())!;
-            expect(story.y + story.height).toBeLessThan(first.y);
+            if (width > 768) expect(story.y + story.height).toBeLessThan(first.y);
             expect(await section.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
             await expect(section).toHaveScreenshot(`open-source-${count}-${width}-${theme}.png`, {animations: 'disabled', maxDiffPixels: 50});
         });

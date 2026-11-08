@@ -1,0 +1,18 @@
+// Animation-only styling; sizing and placement remain owned by the hero.
+.liquid-transition { isolation: isolate; overflow: clip; }
+.liquid-transition-defs { position: absolute; pointer-events: none; }
+.liquid-transition .hero-scene-first { z-index: 3; }
+.liquid-transition .hero-scene-second { z-index: 2; }
+.liquid-transition .hero-scene-third { z-index: 1; }
+.code-transition-trail { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+.code-transition-ball {
+    position: absolute; width: clamp(16px, 2vw, 24px); aspect-ratio: 1; border-radius: 50%;
+    translate: -50% -50%;
+    background: radial-gradient(circle at 35% 30%, #fff 0%, #fff 10%, var(--color-primary) 55%, var(--color-accent) 100%);
+    box-shadow: 0 0 12px var(--color-primary), 0 0 30px color-mix(in srgb, var(--color-primary) 55%, transparent);
+}
+.code-transition-particle {
+    position: absolute; width: 5px; height: 5px; translate: -50% -50%;
+    border-radius: 50%; background: var(--color-primary); box-shadow: 0 0 7px var(--color-primary);
+    &:nth-child(odd) { background: var(--color-accent); }
+}

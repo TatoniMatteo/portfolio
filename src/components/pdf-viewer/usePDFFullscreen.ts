@@ -16,7 +16,12 @@ export const usePDFFullscreen = (rootRef: RefObject<HTMLDivElement | null>) => {
         const html = document.documentElement;
         if (mountedRoot && document.fullscreenElement === mountedRoot) html.dataset.pdfFullscreen = 'true';
         const restore = () => {
-            if (saved.current) window.scrollTo({left: saved.current.x, top: saved.current.y, behavior: 'instant'});
+            const root = rootRef.current;
+            if (saved.current && root) {
+                // Keep the viewer at its original viewport position if the intro changed height.
+                window.scrollTo({left: saved.current.x,
+                    top: scrollY + root.getBoundingClientRect().top - saved.current.rect.top, behavior: 'instant'});
+            }
         };
         const update = () => {
             const root = rootRef.current;

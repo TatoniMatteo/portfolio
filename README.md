@@ -143,3 +143,23 @@ volume and private key. `--remove-orphans` removes the former updater container
 without deleting the CV volume. The public port remains `${WEB_PORT:-8080}`; Caddy now
 listens on port 8080 inside the container. Older releases using the separate
 `portfolio-cv-updater` image require their matching Compose files.
+
+For the existing `ingress_portfolio` proxy network, use
+[`docker-compose.server.yml`](docker-compose.server.yml). It keeps the
+`portfolio-web` alias, log rotation and GitHub App secret, with the CV volume
+writable by the integrated updater. Configure the proxy upstream as
+`http://portfolio-web:8080` (the previous internal port 80 has changed).
+
+```bash
+docker compose -f docker-compose.server.yml pull
+docker compose -f docker-compose.server.yml up -d --no-build --remove-orphans
+```
+
+Run this under the same Compose project name as the existing deployment to
+reuse its `cv-data` volume. The server file pins the daily `20261108` release;
+update the tag when a newer release is published. The image's integrated
+supervisor and healthcheck replace the external `cv-worker-supervisor.mjs`
+command and its custom healthcheck; that external script is no longer mounted.
+
+The Apache logo is provided by the [ASF brand kit](https://www.apache.org/foundation/press/kit/).
+Apache and the Apache logo are trademarks of The Apache Software Foundation.

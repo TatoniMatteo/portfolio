@@ -1,5 +1,6 @@
 import {useId, useLayoutEffect, useRef, useState} from 'react';
 import {useMotionTheme} from '../../hooks/useMotionTheme';
+import {useIsMobile} from '../../hooks/useIsMobile';
 import {AnimatePresence, motion} from 'framer-motion';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import type {IconDefinition} from '@fortawesome/fontawesome-svg-core';
@@ -17,6 +18,7 @@ interface TimelineProps { events: TimelineEvent[]; }
 const Timeline = ({events}: TimelineProps) => {
     const detailId = useId();
     const {swap} = useMotionTheme();
+    const isMobile = useIsMobile();
     const wrapperRef = useRef<HTMLDivElement>(null);
     const listRef = useRef<HTMLOListElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
@@ -35,14 +37,20 @@ const Timeline = ({events}: TimelineProps) => {
             if (!active) return;
             const item = active.getBoundingClientRect();
             const bounds = list.getBoundingClientRect();
-            if (item.top < bounds.top) list.scrollTop += item.top - bounds.top;
-            else if (item.bottom > bounds.bottom) list.scrollTop += item.bottom - bounds.bottom;
+            if (isMobile) {
+                const gutter = parseFloat(getComputedStyle(list).paddingLeft) || 0;
+                if (item.left < bounds.left + gutter) list.scrollLeft += item.left - bounds.left - gutter;
+                else if (item.right > bounds.right - gutter) list.scrollLeft += item.right - bounds.right + gutter;
+            } else {
+                if (item.top < bounds.top) list.scrollTop += item.top - bounds.top;
+                else if (item.bottom > bounds.bottom) list.scrollTop += item.bottom - bounds.bottom;
+            }
         };
         syncHeight();
         const observer = new ResizeObserver(syncHeight);
         observer.observe(card);
         return () => observer.disconnect();
-    }, [selectedIndex]);
+    }, [selectedIndex, isMobile]);
 
     return (
         <div className="timeline-wrapper" ref={wrapperRef}>

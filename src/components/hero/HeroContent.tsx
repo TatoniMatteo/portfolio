@@ -1,12 +1,14 @@
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useRef} from 'react';
 import {useMotionTheme} from '../../hooks/useMotionTheme';
 import type {PointerEvent} from 'react';
-import {motion, useInView, useMotionValue, useMotionValueEvent, useScroll, useSpring, useTransform} from 'framer-motion';
+import {motion, useInView, useMotionValue, useScroll, useSpring} from 'framer-motion';
 import {useTranslation} from 'react-i18next';
 import type {HeroProps} from './Hero';
 import Java from '../../assets/images/java.svg?react';
 import ReactLogo from '../../assets/images/react.svg?react';
+import apacheLogo from '../../assets/images/apache.svg';
 import Navbar from '../navbar/Navbar';
+import HeroLiquidTransition from './HeroLiquidTransition';
 import {RESUME_DOWNLOAD_NAME} from '../../hooks/useResumeUrl';
 
 const HeroContent = ({profileImg, resumeFile, name, role, description}: HeroProps) => {
@@ -15,17 +17,6 @@ const HeroContent = ({profileImg, resumeFile, name, role, description}: HeroProp
     const heroRef = useRef<HTMLDivElement>(null);
     const inView = useInView(heroRef);
     const {scrollYProgress} = useScroll({target: heroRef, offset: ['start start', 'end end']});
-    const [secondScene, setSecondScene] = useState(false);
-    useMotionValueEvent(scrollYProgress, 'change', (value) => setSecondScene(value >= .45));
-    const sceneProgress = useSpring(scrollYProgress, {stiffness: 180, damping: 32, mass: .3});
-    const firstOpacity = useTransform(sceneProgress, [0, .22, .48], [1, 1, 0]);
-    const firstScale = useTransform(sceneProgress, [.22, .48], [1, .94]);
-    const firstRotate = useTransform(sceneProgress, [.22, .48], [0, 8]);
-    const firstBlur = useTransform(sceneProgress, [.22, .48], ['blur(0px)', 'blur(6px)']);
-    const secondOpacity = useTransform(sceneProgress, [.36, .66], [0, 1]);
-    const secondScale = useTransform(sceneProgress, [.36, .66], [1.06, 1]);
-    const secondRotate = useTransform(sceneProgress, [.36, .66], [-8, 0]);
-    const secondBlur = useTransform(sceneProgress, [.36, .66], ['blur(6px)', 'blur(0px)']);
     const x = useMotionValue(0);
     const y = useMotionValue(0);
     const rotateX = useSpring(x, {stiffness: 140, damping: 26});
@@ -45,10 +36,7 @@ const HeroContent = ({profileImg, resumeFile, name, role, description}: HeroProp
             data-motion-active={inView && !reduced} aria-label={t('hero.introLabel')}>
             <div className="hero-stage">
                 <header className="site-header" role="banner"><Navbar/></header>
-                <div className="hero-scenes">
-                    <motion.div className="hero-scene hero-scene-first" inert={!reduced && secondScene}
-                        style={reduced ? undefined : {opacity: firstOpacity, scale: firstScale, rotateY: firstRotate, filter: firstBlur}}
-                        aria-hidden={!reduced && secondScene}>
+                <HeroLiquidTransition progress={scrollYProgress} reduced={reduced} first={<>
                         <div className="hero-copy">
                             <span className="hero-eyebrow">{role}</span>
                             <h1><span className="hero-greeting">{t('hero.greeting', {name})}</span></h1>
@@ -65,10 +53,7 @@ const HeroContent = ({profileImg, resumeFile, name, role, description}: HeroProp
                                     style={{rotateX, rotateY, transformPerspective: 900}}/>
                             </div>
                         </div>
-                    </motion.div>
-                    <motion.div className="hero-scene hero-scene-second" inert={!reduced && !secondScene}
-                        style={reduced ? undefined : {opacity: secondOpacity, scale: secondScale, rotateY: secondRotate, filter: secondBlur}}
-                        aria-hidden={!reduced && !secondScene}>
+                </>} second={<>
                         <div className="hero-copy">
                             <span className="hero-eyebrow">{t('hero.secondEyebrow')}</span>
                             <h2>{t('hero.secondTitle')} <span>{t('hero.secondAccent')}</span></h2>
@@ -85,8 +70,22 @@ const HeroContent = ({profileImg, resumeFile, name, role, description}: HeroProp
                             </div>
                             <span className="hero-code-mark">{'</>'}</span>
                         </div>
-                    </motion.div>
-                </div>
+                </>} third={<>
+                        <div className="hero-copy">
+                            <span className="hero-eyebrow">{t('hero.thirdEyebrow')}</span>
+                            <h2>{t('hero.thirdTitle')} <span>{t('hero.thirdAccent')}</span></h2>
+                            <p>{t('hero.thirdDescription')}</p>
+                            <a className="hero-contributions" href="#open-source">{t('hero.thirdLink')} <span aria-hidden="true">↗</span></a>
+                        </div>
+                        <div className="hero-community" aria-hidden="true">
+                            <div className="hero-community-card">
+                                <span className="hero-tech-index">OPEN SOURCE / APACHE</span>
+                                <img className="hero-apache-logo" src={apacheLogo} alt=""/>
+                                <strong>Apache Syncope</strong>
+                                <span className="hero-committer-badge">COMMITTER</span>
+                            </div>
+                        </div>
+                </>}/>
                 <div className="hero-bottom">
                     <div className="hero-action">
                         <a className="hero-contact" href="#contact-me">{t('hero.contact')}</a>

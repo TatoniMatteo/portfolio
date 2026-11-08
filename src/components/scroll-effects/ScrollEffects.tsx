@@ -28,16 +28,45 @@ const ScrollEffects = () => {
     const glowX = useTransform(scrollYProgress, [0, 1], [0, 220 * depth]);
 
     useEffect(() => {
-        const observer = new IntersectionObserver((entries) => {
-            for (const entry of entries) {
-                if (entry.isIntersecting) setActive(entry.target.id);
+        const getStops = () => sections.map(({id}) => document.getElementById(id)).filter((element) => element !== null);
+        let frame = 0;
+        const update = () => {
+            frame = 0;
+            const stops = getStops();
+            if (!stops.length) return;
+            const end = document.documentElement.scrollHeight - innerHeight;
+            if (window.scrollY <= 1) {
+                setActive(stops[0].id);
+                return;
             }
-        }, {rootMargin: '-45% 0px -45% 0px', threshold: 0});
-        for (const {id} of sections) {
-            const element = document.getElementById(id);
-            if (element) observer.observe(element);
-        }
-        return () => observer.disconnect();
+            if (window.scrollY >= end - 1) {
+                setActive(stops[stops.length - 1].id);
+                return;
+            }
+            const center = innerHeight / 2;
+            let nearest = stops[0];
+            let distance = Infinity;
+            for (const element of stops) {
+                const bounds = element.getBoundingClientRect();
+                const gap = Math.max(bounds.top - center, center - bounds.bottom, 0);
+                if (gap < distance) { distance = gap; nearest = element; }
+            }
+            setActive(nearest.id);
+        };
+        const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+        const observer = new ResizeObserver(schedule);
+        for (const element of getStops()) observer.observe(element);
+        const footer = document.querySelector('footer');
+        if (footer) observer.observe(footer);
+        window.addEventListener('scroll', schedule, {passive: true});
+        window.addEventListener('resize', schedule);
+        update();
+        return () => {
+            observer.disconnect();
+            window.removeEventListener('scroll', schedule);
+            window.removeEventListener('resize', schedule);
+            cancelAnimationFrame(frame);
+        };
     }, []);
 
     useEffect(() => {
@@ -47,7 +76,7 @@ const ScrollEffects = () => {
                 (event.key !== 'ArrowDown' && event.key !== 'ArrowUp')) return;
             const origin = event.target;
             if (origin instanceof Element && origin.closest(
-                'input, textarea, select, button, [contenteditable]:not([contenteditable="false"]), [role="textbox"], [role="slider"], [role="listbox"], [role="combobox"], .pdf-container',
+                'input, textarea, select, button, [contenteditable]:not([contenteditable="false"]), [role="textbox"], [role="slider"], [role="listbox"], [role="combobox"], .pdf-container, .mobile-panel, .mobile-panels-track, .timeline-detail-card, .contact-layout',
             )) return;
 
             const stops = sections.map(({id}) => document.getElementById(id)).filter((element) => element !== null);

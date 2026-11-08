@@ -143,7 +143,7 @@ test('section guide follows centered scrolling and keeps long sections readable'
     })).toBeLessThan(4);
     await page.setViewportSize({width: 390, height: 844});
     await expect(guide).toBeHidden();
-    await page.locator('.skill-group-tools').scrollIntoViewIfNeeded();
+    await page.locator('.about-mobile .skill-group-tools').scrollIntoViewIfNeeded();
     await expect(page.locator('.skill-group-tools')).toBeInViewport();
     await expect(page.locator('.skill-group-tools')).toContainText('Git');
     await page.locator('footer').scrollIntoViewIfNeeded();
@@ -232,13 +232,18 @@ for (const width of [390, 1440]) {
         await expect(buttons).toHaveCount(5);
         await page.locator('#career').scrollIntoViewIfNeeded();
         const list = page.locator('.timeline-container');
-        await expect(list).toHaveCSS('direction', 'rtl');
-        await expect.poll(async () => {
-            const navigation = (await page.locator('.timeline-navigation').boundingBox())!;
-            const card = (await page.locator('.timeline-detail-card').boundingBox())!;
-            return Math.abs(navigation.height - card.height);
-        }).toBeLessThan(1);
-        expect(await page.locator('.timeline-detail-card').evaluate((element) => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(440);
+        await expect(list).toHaveCSS('direction', width <= 768 ? 'ltr' : 'rtl');
+        if (width <= 768) {
+            expect((await page.locator('.timeline-navigation').boundingBox())!.height).toBeLessThan(130);
+            expect(await list.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
+        } else {
+            await expect.poll(async () => {
+                const navigation = (await page.locator('.timeline-navigation').boundingBox())!;
+                const card = (await page.locator('.timeline-detail-card').boundingBox())!;
+                return Math.abs(navigation.height - card.height);
+            }).toBeLessThan(1);
+            expect(await page.locator('.timeline-detail-card').evaluate((element) => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(440);
+        }
         const overflows = await list.evaluate((element) => element.scrollHeight > element.clientHeight);
         if (overflows) {
             await list.evaluate((element) => { element.scrollTop = element.scrollHeight; });

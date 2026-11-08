@@ -1,4 +1,6 @@
 import SectionTitle from '../section-title/SectionTitle';
+import MobilePanels from '../mobile-panels/MobilePanels';
+import {useIsMobile} from '../../hooks/useIsMobile';
 import {useEffect, useState} from 'react';
 import {useMotionTheme} from '../../hooks/useMotionTheme';
 import {motion} from 'framer-motion';
@@ -131,6 +133,7 @@ const OpenSourceProjectCard = ({
 
 const OpenSource = () => {
     const {t} = useTranslation();
+    const isMobile = useIsMobile();
     const [contributions, setContributions] = useState<ProjectData[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
@@ -175,66 +178,32 @@ const OpenSource = () => {
     const canHighlight = complete && contributions.every((project) => project.pullRequestCount !== undefined) &&
         (contributions[0]?.pullRequestCount ?? 0) > 0;
 
+    const story = <div className="open-source-story">
+        <p className="open-source-intro">{t('openSource.intro')}</p>
+        <a className="open-source-profile" href={`https://github.com/${GITHUB_USERNAME}`} target="_blank" rel="noopener noreferrer"><FontAwesomeIcon icon={faGithub}/>{t('openSource.profileLink')}<FontAwesomeIcon icon={faUpRightFromSquare}/></a>
+    </div>;
+    const message = loading ? t('openSource.loading') : error ? t('openSource.error') : null;
+    const cards = message ? [
+        <div className="contribution-card" key="state">
+            <div className="contribution-project"><FontAwesomeIcon icon={faGithub} size="lg"/><h3>GitHub</h3><p>{message}</p></div>
+        </div>,
+    ] : contributions.length === 0 ? [
+        <p role="status" key="empty">{t('openSource.noProjects')}</p>,
+    ] : contributions.map((project, index) => (
+        <OpenSourceProjectCard key={project.repository.full_name} project={project} featured={canHighlight && index === 0}/>
+    ));
+
     return (
         <div className="section" id="open-source">
             <SectionTitle>{t('openSource.title')}</SectionTitle>
-
-            <div className={`open-source-layout${contributions.length > 1 ? ' has-multiple-projects' : ''}`}>
-                <div className="open-source-story">
-                    <p className="open-source-intro">{t('openSource.intro')}</p>
-                    <a className="open-source-profile" href={`https://github.com/${GITHUB_USERNAME}`} target="_blank" rel="noopener noreferrer"><FontAwesomeIcon icon={faGithub}/>{t('openSource.profileLink')}<FontAwesomeIcon icon={faUpRightFromSquare}/></a>
+            {isMobile ? (
+                <MobilePanels label={t('openSource.title')}>{story}{cards}</MobilePanels>
+            ) : (
+                <div className={`open-source-layout${contributions.length > 1 ? ' has-multiple-projects' : ''}`}>
+                    {story}
+                    <div className="contribution-grid">{cards}</div>
                 </div>
-            <div className="contribution-grid">
-                {loading && (
-                    <div className="contribution-card">
-                        <div className="contribution-project">
-                            <FontAwesomeIcon
-                                icon={faGithub}
-                                size="lg"
-                            />
-
-                            <h3>GitHub</h3>
-
-                            <p>
-                                {t('openSource.loading')}
-                            </p>
-                        </div>
-                    </div>
-                )}
-
-                {error && (
-                    <div className="contribution-card">
-                        <div className="contribution-project">
-                            <FontAwesomeIcon
-                                icon={faGithub}
-                                size="lg"
-                            />
-
-                            <h3>GitHub</h3>
-
-                            <p>
-                                {t('openSource.error')}
-                            </p>
-                        </div>
-                    </div>
-                )}
-
-                {!loading &&
-                    !error && contributions.length === 0 && (
-                        <p role="status">{t('openSource.noProjects')}</p>
-                    )}
-
-                {!loading &&
-                    !error &&
-                    contributions.map((project, index) => (
-                        <OpenSourceProjectCard
-                            key={project.repository.full_name}
-                            project={project}
-                            featured={canHighlight && index === 0}
-                        />
-                    ))}
-            </div>
-            </div>
+            )}
         </div>
     );
 };

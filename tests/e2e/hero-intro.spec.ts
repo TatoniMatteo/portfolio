@@ -9,70 +9,130 @@ test.beforeEach(async ({page}) => {
 });
 
 for (const width of [390, 1440]) {
-    test(`short pinned introduction advances and reverses at ${width}px`, async ({page}, testInfo) => {
+    test(`three pinned scenes advance and reverse at ${width}px`, async ({page}, testInfo) => {
         await page.setViewportSize({width, height: 900});
         await page.emulateMedia({reducedMotion: 'no-preference'});
         await page.goto('/');
         await page.evaluate(() => document.fonts.ready);
-        const first = page.locator('.hero-scene-first');
-        const second = page.locator('.hero-scene-second');
-        await expect(first).toHaveAttribute('aria-hidden', 'false');
-        await expect(second).toHaveAttribute('inert', '');
-        await expect(page.locator('.hero-contact')).toBeInViewport();
+        await page.evaluate(() => { document.documentElement.style.scrollSnapType = 'none'; });
+        const travel = await page.locator('#home').evaluate((element) => element.getBoundingClientRect().height - innerHeight);
+        const scenes = ['first', 'second', 'third'].map((name) => page.locator(`.hero-scene-${name}`));
         const stage = page.locator('.hero-stage');
         const header = page.getByRole('banner');
-        const initialTop = (await stage.boundingBox())!.y;
         const headerTop = (await header.boundingBox())!.y;
-        expect(initialTop).toBeCloseTo(0, 0);
-        await page.evaluate(() => window.scrollTo({top: 40, behavior: 'instant'}));
-        await expect.poll(async () => (await stage.boundingBox())!.y).toBeCloseTo(initialTop, 0);
-        expect((await header.boundingBox())!.y).toBeCloseTo(headerTop, 0);
-        await page.evaluate(() => window.scrollTo({top: 0, behavior: 'instant'}));
-        await expect(page.locator('.portrait-brackets, .hero-code-sparks')).toHaveCount(0);
-        await page.screenshot({path: testInfo.outputPath('intro-first.png')});
-        const start = await page.locator('#home').evaluate((element) => element.offsetTop);
-        await page.evaluate((top) => {
-            document.documentElement.style.scrollSnapType = 'none';
-            window.scrollTo({top, behavior: 'instant'});
-        }, start + 100);
-        const pinnedTop = (await page.locator('.hero-stage').boundingBox())!.y;
-        await page.evaluate((top) => window.scrollTo({top, behavior: 'instant'}), start + 720);
-        await expect(second).toHaveAttribute('aria-hidden', 'false');
-        await expect(first).toHaveAttribute('inert', '');
-        await expect(second).toHaveCSS('opacity', '1');
-        expect((await page.locator('.hero-stage').boundingBox())!.y).toBeCloseTo(pinnedTop, 0);
-        expect((await header.boundingBox())!.y).toBeCloseTo(headerTop, 0);
-        await expect(header.getByRole('navigation')).toBeInViewport();
-        await page.screenshot({path: testInfo.outputPath('intro-second.png')});
-        await page.evaluate((top) => window.scrollTo({top, behavior: 'instant'}), start + 450);
-        await expect.poll(() => second.evaluate((element) => Number(getComputedStyle(element).opacity)))
-            .toBeGreaterThan(.2);
-        for (const scene of [first, second]) {
-            expect(await scene.evaluate((element) => new DOMMatrix(getComputedStyle(element).transform).m42)).toBe(0);
+        const trail = page.locator('.code-transition-trail');
+        const jump = async (progress: number) => page.evaluate((top) => window.scrollTo({top, behavior: 'instant'}), travel * progress);
+        for (const [index, progress] of [0, .5, 1].entries()) {
+            await jump(progress);
+            await expect(scenes[index]).toHaveAttribute('aria-hidden', 'false');
+            await expect(scenes[index]).toHaveCSS('opacity', '1');
+            await expect(page.locator('.hero-scene:not([inert])')).toHaveCount(1);
+            expect((await stage.boundingBox())!.y).toBeCloseTo(0, 0);
+            expect((await header.boundingBox())!.y).toBeCloseTo(headerTop, 0);
+            await expect(page.locator('.hero-contact')).toBeInViewport();
+            await expect(trail).toHaveCSS('opacity', '0');
+            await page.screenshot({path: testInfo.outputPath(`intro-${index + 1}.png`)});
         }
-        await page.screenshot({path: testInfo.outputPath('intro-transition.png')});
-        await page.evaluate((top) => window.scrollTo({top, behavior: 'instant'}), start + 1050);
+        await expect(scenes[2]).toContainText('Apache Syncope.');
+        await expect(scenes[2].getByRole('link')).toHaveAttribute('href', '#open-source');
+        for (const progress of [.73, .27]) {
+            await jump(progress);
+            await expect(trail).toHaveCSS('opacity', '1');
+            await expect(page.locator('.code-transition-ball')).toBeVisible();
+            await expect(page.locator('.code-transition-particle')).toHaveCount(360);
+            await expect(page.locator('feDisplacementMap, .code-transition-veil, .code-transition-symbol')).toHaveCount(0);
+            for (const scene of scenes) {
+                await expect(scene).toHaveCSS('filter', 'none');
+                expect(await scene.evaluate((element) => new DOMMatrix(getComputedStyle(element).transform).m42)).toBe(0);
+            }
+            await page.screenshot({path: testInfo.outputPath(`intro-transition-${progress}.png`)});
+        }
+        const ball = page.locator('.code-transition-ball');
+        for (const [from, to, direction] of [[.18, .32, 1], [.64, .78, -1]]) {
+            await jump(from);
+            await expect.poll(() => ball.evaluate((element) => parseFloat((element as HTMLElement).style.left)))
+                .toBeCloseTo(direction === 1 ? 26.7 : 73.3, 0);
+            const before = (await ball.boundingBox())!;
+            await jump(to);
+            await expect.poll(() => ball.evaluate((element) => parseFloat((element as HTMLElement).style.left)))
+                .toBeCloseTo(direction === 1 ? 88.9 : 11.1, 0);
+            const after = (await ball.boundingBox())!;
+            expect((after.x - before.x) * direction).toBeGreaterThan(width * .4);
+            if (width <= 768) {
+                expect((after.y - before.y) * direction).toBeGreaterThan((await trail.boundingBox())!.height * .15);
+            }
+        }
+        await jump(0);
+        await expect(scenes[0]).toHaveAttribute('aria-hidden', 'false');
+        await expect(scenes[0]).toHaveCSS('opacity', '1');
+        await expect(trail).toHaveCSS('opacity', '0');
+        await page.evaluate((top) => window.scrollTo({top, behavior: 'instant'}), travel + 200);
         await expect.poll(async () => (await stage.boundingBox())!.y).toBeLessThan(-100);
         expect((await header.boundingBox())!.y).toBeCloseTo((await stage.boundingBox())!.y, 0);
-        await page.evaluate(() => window.scrollTo({top: 0, behavior: 'instant'}));
-        await expect(first).toHaveAttribute('aria-hidden', 'false');
-        await expect(first).toHaveCSS('opacity', '1');
+        await jump(1);
+        await expect(scenes[2]).toHaveAttribute('aria-hidden', 'false');
+        await scenes[2].getByRole('link').click();
+        await expect(page.locator('#open-source h2')).toBeInViewport();
+        await jump(0);
         await page.locator('.hero-scroll-hint').click();
         await expect(page.locator('#about-heading')).toBeInViewport();
-        await expect(page.locator('.hero-stage')).not.toBeInViewport();
+        await expect(stage).not.toBeInViewport();
     });
 }
 
-test('reduced motion presents both scenes in normal flow and translates the introduction', async ({page}) => {
+test('reduced motion presents all three scenes in normal flow and translates the introduction', async ({page}) => {
     await page.setViewportSize({width: 390, height: 844});
     await page.goto('/');
     await expect(page.locator('.hero-stage')).toHaveCSS('position', 'relative');
     await expect(page.locator('.portrait-brackets, .hero-code-sparks')).toHaveCount(0);
+    await expect(page.locator('.liquid-transition-defs, .code-transition-trail')).toHaveCount(0);
     await expect(page.locator('.hero-scene[inert]')).toHaveCount(0);
     await expect(page.locator('.hero-scene-second .hero-copy')).toHaveCSS('opacity', '1');
     await expect(page.locator('#home h1')).toContainText('Ciao, sono Matteo Tatoni.');
     await page.getByRole('button', {name: 'Menu di navigazione'}).click();
     await page.getByRole('button', {name: 'EN', exact: true}).click();
     await expect(page.locator('#home h1')).toContainText('Hi, I’m Matteo Tatoni.');
-    await expect(page.locator('#home h2')).toContainText('Frontend is my playground.');
+    await expect(page.locator('.hero-scene-third h2')).toContainText('I’m a committer on Apache Syncope.');
+    await expect(page.locator('.hero-scene-second h2')).toContainText('Frontend is my playground.');
 });
+
+test('enabling reduced motion during the reveal releases all three complete scenes', async ({page}) => {
+    await page.setViewportSize({width: 390, height: 900});
+    await page.emulateMedia({reducedMotion: 'no-preference'});
+    await page.goto('/');
+    await page.evaluate(() => {
+        document.documentElement.style.scrollSnapType = 'none';
+        window.scrollTo({top: (document.getElementById('home')!.offsetHeight - innerHeight) * .73, behavior: 'instant'});
+    });
+    await expect(page.locator('.code-transition-trail')).toHaveCSS('opacity', '1');
+    await page.emulateMedia({reducedMotion: 'reduce'});
+    await expect(page.locator('.liquid-transition-defs, .code-transition-trail')).toHaveCount(0);
+    await expect(page.locator('.hero-scene[inert]')).toHaveCount(0);
+    for (const scene of await page.locator('.hero-scene').all()) {
+        await expect(scene).toHaveCSS('clip-path', 'none');
+        await expect(scene).toHaveCSS('filter', 'none');
+        await expect(scene).toHaveCSS('opacity', '1');
+    }
+});
+
+for (const viewport of [{width: 320, height: 568}, {width: 667, height: 375}]) {
+    test(`pinned scenes keep the header and actions clear at ${viewport.width}x${viewport.height}`, async ({page}, testInfo) => {
+        await page.setViewportSize(viewport);
+        await page.emulateMedia({reducedMotion: 'no-preference'});
+        await page.goto('/');
+        await page.evaluate(() => document.fonts.ready);
+        await page.evaluate(() => { document.documentElement.style.scrollSnapType = 'none'; });
+        for (const [top, scene] of [[0, '.hero-scene-first'], [viewport.height * 1.3, '.hero-scene-second'], [viewport.height * 2.6, '.hero-scene-third']] as const) {
+            await page.evaluate((value) => window.scrollTo({top: value, behavior: 'instant'}), top);
+            await expect(page.locator(scene)).toHaveCSS('opacity', '1');
+            const header = (await page.locator('.site-header nav').boundingBox())!;
+            const actions = (await page.locator('.hero-bottom').boundingBox())!;
+            const copy = (await page.locator(`${scene} .hero-copy`).boundingBox())!;
+            const illustration = (await page.locator(`${scene} ${top === 0 ? '.hero-portrait' : scene.endsWith('third') ? '.hero-community' : '.hero-tech'}`).boundingBox())!;
+            expect(Math.min(copy.y, illustration.y)).toBeGreaterThanOrEqual(header.y + header.height);
+            expect(Math.max(copy.y + copy.height, illustration.y + illustration.height)).toBeLessThanOrEqual(actions.y + 1);
+            await expect(page.locator('.hero-contact')).toBeInViewport();
+            await page.screenshot({path: testInfo.outputPath(`${scene}-small-screen.png`)});
+        }
+    });
+}

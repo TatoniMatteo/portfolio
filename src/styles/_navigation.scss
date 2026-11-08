@@ -200,7 +200,39 @@ button.hamburger {
     background: var(--color-card);
 }
 
-.navbar-desktop, .navbar-mobile { background: var(--color-bg); }
+.navbar-desktop, .navbar-mobile {
+    position: relative;
+    isolation: isolate;
+    background: transparent;
+    &::before {
+        content: '';
+        position: absolute;
+        inset: -12px -24px -24px;
+        z-index: -1;
+        background: color-mix(in srgb, var(--glass-surface) 90%, transparent);
+        backdrop-filter: blur(var(--glass-blur));
+        border-radius: 28px;
+        mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent),
+            linear-gradient(180deg, transparent, #000 12px, #000 calc(100% - 24px), transparent);
+        mask-composite: intersect;
+        pointer-events: none;
+    }
+}
+
+.navbar-mobile {
+    margin-inline: 12px;
+    &::before { inset: -8px -12px -20px; }
+    .nav-menu {
+        box-sizing: border-box;
+        width: min(260px, calc(100vw - 32px));
+        max-height: calc(100svh - 112px);
+        overflow-y: auto;
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        background: var(--glass-surface);
+        backdrop-filter: blur(var(--glass-blur));
+    }
+}
 
 .navbar-controls { display: flex; align-items: center; gap: 10px; }
 .theme-switcher {

@@ -25,11 +25,18 @@
 
 @include tokens.down(mobile) {
     .resume-layout { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
-    .resume-intro { gap: var(--space-3); }
-    .resume-symbol { display: none; }
-    .resume-intro > p { max-width: none; }
-    .resume-intro .resume-hint { display: none; }
-    .resume-preview { height: 72svh; min-height: 420px; }
+    .resume-intro { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-3); align-items: end; }
+    .resume-intro h3 { grid-column: 1 / -1; font-size: 1.25rem; }
+    .resume-symbol, .resume-format, .resume-intro > p { display: none; }
+    .resume-download { padding: 10px 12px; min-height: 44px; box-sizing: border-box; }
+    .resume-preview { height: clamp(280px, calc(100svh - 264px), 560px); min-height: 0; }
+}
+
+@media (max-width: 768px) and (max-height: 420px) {
+    .resume-layout { grid-template-columns: minmax(0, .9fr) minmax(0, 1.3fr); gap: 16px; }
+    .resume-intro { grid-template-columns: minmax(0, 1fr); align-self: center; }
+    .resume-download { justify-self: start; }
+    .resume-preview { height: calc(100svh - 128px); }
 }
 
 .pdf-container {
@@ -120,6 +127,12 @@
     button { border: 0; border-radius: var(--radius-md); padding: 8px 12px; font-size: .8125rem; background: transparent; color: var(--color-text); cursor: pointer; transition: background var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease); }
     button:hover { background: var(--color-selected); }
     button[aria-pressed='true'] { background: var(--color-primary); color: var(--color-on-primary); }
+}
+
+@include tokens.down(mobile) {
+    .resume-language-field { gap: var(--space-1); }
+    .resume-language-switcher { justify-self: start; padding: 2px; gap: 2px; }
+    .resume-language-switcher button { min-height: 44px; padding: 8px; }
 }
 
 // Fullscreen temporarily removes the viewer from the page flow. Suspend snapping

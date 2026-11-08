@@ -24,6 +24,11 @@ for (const width of [320, 390, 768, 769, 1024, 1440, 2560]) {
             await expect.poll(async () => section.locator('h1,h2,h3,p,button,a,img,canvas,.about-skills,.skill-chip,.project-list,.contribution-card').evaluateAll((elements) =>
                 elements.filter((element) => {
                     const rect = element.getBoundingClientRect();
+                    const scroller = element.closest('.timeline-container, .mobile-panels-track, .project-list');
+                    if (scroller && getComputedStyle(scroller).overflowX === 'auto' && scroller.scrollWidth > scroller.clientWidth) {
+                        const bounds = scroller.getBoundingClientRect();
+                        return bounds.left < -1 || bounds.right > window.innerWidth + 1;
+                    }
                     return rect.width > 0 && (rect.left < -1 || rect.right > window.innerWidth + 1);
                 }).map((element) => `${element.tagName}.${element.className}: ${element.textContent?.slice(0, 45)}`)), {message: `clipped content in #${id}`}).toEqual([]);
         }
